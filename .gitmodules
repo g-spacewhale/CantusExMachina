@@ -1,3 +1,6 @@
 [submodule "BandController/lib/arduino_midi_library"]
 	path = BandController/lib/arduino_midi_library
 	url = https://github.com/FortySevenEffects/arduino_midi_library.git
+[submodule "BandController/lib/Adafruit_ILI9340"]
+	path = BandController/lib/Adafruit_ILI9340
+	url = https://github.com/adafruit/Adafruit_ILI9340.git
