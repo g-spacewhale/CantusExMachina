@@ -4,3 +4,6 @@
 [submodule "BandController/lib/Adafruit_ILI9340"]
 	path = BandController/lib/Adafruit_ILI9340
 	url = https://github.com/adafruit/Adafruit_ILI9340.git
+[submodule "BandController/lib/Adafruit-GFX-Library"]
+	path = BandController/lib/Adafruit-GFX-Library
+	url = https://github.com/adafruit/Adafruit-GFX-Library.git
