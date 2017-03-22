@@ -47,7 +47,7 @@ void setup()
   }
   Serial.println("OK!");
 
-  root = SD.open("/");
+  root = SD.open("/MIDI/");
 
   tft.begin();
   tft.setRotation(3);
