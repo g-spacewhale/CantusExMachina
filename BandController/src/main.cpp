@@ -4,6 +4,8 @@
 #include <Adafruit_ILI9340.h>
 #include <SD.h>
 
+#include <MIDI.h>
+
 #if defined(__SAM3X8E__)
     #undef __FlashStringHelper::F(string_literal)
     #define F(string_literal) string_literal
@@ -30,6 +32,8 @@ void printDirectory(File dir, int numTabs);
 
 File root;
 
+MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, midiA);
+
 void setup()
 {
   pinMode(13, OUTPUT);
@@ -39,6 +43,7 @@ void setup()
   pinMode(SD_CS, OUTPUT);
   digitalWrite(SD_CS, HIGH);
 
+  midiA.begin(MIDI_CHANNEL_OMNI);
 
   Serial.print("Initializing SD card...");
   if (!SD.begin(SD_CS)) {
@@ -54,14 +59,23 @@ void setup()
   testText();
 
   printDirectory(root, 0);
+
 }
 
 void loop(void)
 {
   digitalWrite(13, HIGH);
-  delay(1000);
-  digitalWrite(13, LOW);
-  delay(1000);
+  midiA.sendNoteOn(0 , 127, 2);
+  midiA.sendNoteOn(0 , 127, 1);
+  midiA.sendNoteOn(0 , 127, 4);
+
+  midiA.sendNoteOff(0, 0, 1);
+  midiA.sendNoteOff(0, 0, 4);
+  midiA.sendNoteOff(0, 0, 2);
+
+  digitalWrite(13,LOW);
+
+  delay(2000);
 }
 
 void printDirectory(File dir, int numTabs) {
@@ -75,17 +89,21 @@ void printDirectory(File dir, int numTabs) {
     for (uint8_t i = 0; i < numTabs; i++) {
       Serial.print('\t');
     }
-    Serial.print(entry.name());
-    tft.println(entry.name());
+    if(entry.name()[0] != '_')
+    {
+      Serial.print(entry.name());
+      tft.println(entry.name());
 
-    if (entry.isDirectory()) {
-      Serial.println("/");
-      printDirectory(entry, numTabs + 1);
-    } else {
-      // files have sizes, directories do not
-      Serial.print("\t\t");
-      Serial.println(entry.size(), DEC);
+      if (entry.isDirectory()) {
+        Serial.println("/");
+        printDirectory(entry, numTabs + 1);
+      } else {
+        // files have sizes, directories do not
+        Serial.print("\t\t");
+        Serial.println(entry.size(), DEC);
+      }
     }
+
     entry.close();
   }
 }
