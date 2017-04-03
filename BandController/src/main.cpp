@@ -14,6 +14,8 @@
 #include <StateDefines.h>
 #include <Display.h>
 
+//#define _DEBUGGING 1   // defines if debugg messages are sent via serial
+
 #define _FIRMWARE_VERSION 0.01
 
 // EEPROM Cell codes
@@ -26,20 +28,33 @@
 #define _encoderPinB 3
 #define _endocerPinClick 18
 
+/*#define _displayPinCS 53
+#define _displayPinDC 9
+#define _displayPinRST 8
+#define _displayPinBACKLIGHT 4*/
+
 
 
 // ------------------- Variable declarations -------------------
 unsigned char _state = _STATE_BOOTUP;       // holds the current state of the statemachine - refere to 'Defining of States'
-Display _display = Display(53, 9, 8, 4);
+//unsigned char _previousState = 0;           // holds the previous state of the statemachine
+
+Display _display = Display(35, 9, 8, 4);
 
 
 // forward declarations
+//void sendDebugMessage(unsigned char messageCode, String message);
+//void changeState(unsigned char newState);
 void bootUpRoutine();
+
 
 // Start of Code
 void setup()
 {
     // nothing to do here everything is done in the Statemachine loop
+
+    // setup serial for debugg messages
+
 }
 
 // Statemachine Loop
@@ -58,6 +73,12 @@ void loop()
       break;
   }
 }
+
+/*void changeState(unsigned char newState)
+{
+  _previousState = _state;
+  _state = newState;
+}*/
 
 void bootUpRoutine()
 {
