@@ -58,7 +58,7 @@ char counterClicks = 0;
 unsigned char _state = _STATE_BOOTUP;       // holds the current state of the statemachine - refere to 'Defining of States'
 unsigned char _previousState = 0;           // holds the previous state of the statemachine
 
-Display _display = Display(_displayPinCS, _displayPinDC, _displayPinRST, _displayPinBACKLIGHT);
+Display _display = Display(_displayPinCS, _displayPinDC, _displayPinRST, _displayPinBACKLIGHT, _displayBrightness);
 
 
 // ------------------- Forward declarations --------------------

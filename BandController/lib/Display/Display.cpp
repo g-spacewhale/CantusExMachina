@@ -9,15 +9,16 @@
 #include "Display.h"
 #include "Arduino.h"
 
-Display::Display(int pinCS, int pinDC, int pinRST, int pinBACKLIGHT):_display(pinCS, pinDC, pinRST)
+Display::Display(int pinCS, int pinDC, int pinRST, int pinBACKLIGHT, unsigned char backlight):_display(pinCS, pinDC, pinRST)
 {
   _pinCS = pinCS;
   _pinDC = pinDC;
   _pinRST = pinRST;
   _pinBACKLIGHT = pinBACKLIGHT;
+  _backlight = backlight;
 
-  pinMode(pinBACKLIGHT, OUTPUT);
-  analogWrite(pinBACKLIGHT, 128);
+  pinMode(_pinBACKLIGHT, OUTPUT);
+  analogWrite(pinBACKLIGHT, _backlight);
 }
 
 
@@ -30,4 +31,10 @@ void Display::begin()
   _display.setTextColor(ILI9340_BLACK);
   _display.setTextSize(1);
   _display.println("Cantus Ex Machina");
+}
+
+void Display::setBacklight(unsigned char backlight)
+{
+  _backlight = backlight;
+  analogWrite(_pinBACKLIGHT, _backlight);
 }
