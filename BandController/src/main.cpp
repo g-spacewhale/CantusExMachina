@@ -10,39 +10,13 @@
 #include <Arduino.h>
 #include <EEPROM.h>
 #include <SPI.h>
+#include <SD.h>
 
 // custom classes and additional headers for information
-#include <StateDefines.h>
-#include <Display.h>
-
-#define _DEBUGING   // defines if debugg messages are sent via serial (-> comment out if no messages shoul be sent)
-#ifdef _DEBUGING
-  #define SEND_DEBUG_MESSAGE(x,y) sendDebugMessage(x,y)
-#else
- #define SEND_DEBUG_MESSAGE(x,y)
-#endif
-
-#define _FIRMWARE_VERSION 0.01
-
-// EEPROM Cell codes (defines in which EEPROM Cell which information is stored)
-#define _EEPROM_LANGUAGE 0
-#define _EEPROM_DISPLAY_BRIGHTNESS 1
-
-#define _languageEnglish 0    // english is the standard language
-#define _languageGerman 1
-
-// ------------------ Defining of Pin mapping ------------------
-// defines the 3 Data-Pins of the Roatary Encoder
-#define _encoderPinA 2
-#define _encoderPinB 3
-#define _encoderPinClick 18
-
-// defines the 4 Data-Pins of the Display
-#define _displayPinCS 53
-#define _displayPinDC 9
-#define _displayPinRST 8
-#define _displayPinBACKLIGHT 4
-
+#include <Defines.h>        // holds all Defines
+#include <DataManagement.h> // custom class to manage data on sd card
+#include <Language.h>       //
+#include <Display.h>        // custom Display class to manage the tft Display
 
 // ------------------- Variable declarations -------------------
 // Settings
@@ -59,7 +33,8 @@ unsigned char _state = _STATE_BOOTUP;       // holds the current state of the st
 unsigned char _previousState = 0;           // holds the previous state of the statemachine
 
 Display _display = Display(_displayPinCS, _displayPinDC, _displayPinRST, _displayPinBACKLIGHT, _displayBrightness);
-
+DataManagement _dataManager = DataManagement(_sdPinCS);
+Language _translation = Language();
 
 // ------------------- Forward declarations --------------------
 void sendDebugMessage(unsigned char messageCode, String message);
@@ -98,10 +73,11 @@ void loop()
     case _STATE_BOOTUP:
       bootUpRoutine();
       break;
+
     case _STATE_HOME:
 
       // encoder Testing
-      if(encoderGetTurns())
+      /*if(encoderGetTurns())
       {
         counterTurns += encoderGetTurns();
         encoderResetTurns();
@@ -112,9 +88,17 @@ void loop()
         counterClicks += encoderGetClicks();
         encoderResetClicks();
         SEND_DEBUG_MESSAGE(0, "counterClicks = "+String(counterClicks, DEC));
-      }
+      }*/
 
       break;
+
+    case _STATE_SD_ERROR:   // SD-Card was not initialized due to an error
+      SEND_DEBUG_MESSAGE(1,"SD-Card Error");
+      break;
+
+    case _STATE_ERROR:
+      break;
+
     default:
       //Error message
       SEND_DEBUG_MESSAGE(0, "ERROR: Statemachine went into default case");
@@ -183,15 +167,42 @@ void bootUpRoutine()
   // Load Settings from EEPROM
   _language = EEPROM.read(_EEPROM_LANGUAGE);
   SEND_DEBUG_MESSAGE(0, "Language from EEPROM = "+String(_language, DEC));
+  if(_language !=_languageEnglish || _language != _languageGerman)
+  {
+    _language = _languageEnglish;
+    EEPROM.write(_EEPROM_LANGUAGE, _language);
+  }
+
   _displayBrightness = EEPROM.read(_EEPROM_DISPLAY_BRIGHTNESS);
   SEND_DEBUG_MESSAGE(0, "Display Brightness from EEPROM = "+String(_displayBrightness, DEC));
+  if(_displayBrightness < 0 || _displayBrightness > 255)
+  {
+    _displayBrightness = 255;
+    EEPROM.write(_EEPROM_DISPLAY_BRIGHTNESS, _displayBrightness);
+  }
+  _display.setBacklight(_displayBrightness);
 
   // Init Display
   _display.begin();
 
   // Init SD-Card
+  if(!_dataManager.begin())
+  {
+    changeState(_STATE_SD_ERROR);
+    return;
+  }
 
   // Load infos from SD card
+  File languageFile;
+  if(_dataManager.getLanguageFile(_languageEnglish, languageFile))
+  {
+    _translation.createLanguageMap(languageFile);
+    languageFile.close();
+  } else {
+    SEND_DEBUG_MESSAGE(0, "Error: Language file not available");
+    changeState(_STATE_ERROR);
+    return;
+  }
 
   // When all done:
   changeState(_STATE_HOME);

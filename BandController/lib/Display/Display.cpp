@@ -7,7 +7,8 @@
 /* ------------------------------------------------- */
 
 #include "Display.h"
-#include "Arduino.h"
+#include <Arduino.h>
+#include <Adafruit_ILI9340.h>
 
 Display::Display(int pinCS, int pinDC, int pinRST, int pinBACKLIGHT, unsigned char backlight):_display(pinCS, pinDC, pinRST)
 {
@@ -21,11 +22,10 @@ Display::Display(int pinCS, int pinDC, int pinRST, int pinBACKLIGHT, unsigned ch
   analogWrite(pinBACKLIGHT, _backlight);
 }
 
-
 void Display::begin()
 {
   _display.begin();
-  _display.setRotation(3);
+  _display.setRotation(1);
   _display.fillScreen(ILI9340_WHITE);
   _display.setCursor(0, 0);
   _display.setTextColor(ILI9340_BLACK);
