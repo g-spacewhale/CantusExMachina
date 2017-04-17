@@ -20,6 +20,7 @@ class DataManagement
     DataManagement(int pinCS);
     char begin();
     char getLanguageFile(char language, File &languageFile);
+    char loadSongs();
   private:
     void printDirectory(File dir, int numTabs);
     int _pinCS;
