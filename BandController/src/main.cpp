@@ -77,7 +77,7 @@ void loop()
     case _STATE_HOME:
 
       // encoder Testing
-      /*if(encoderGetTurns())
+      if(encoderGetTurns())
       {
         counterTurns += encoderGetTurns();
         encoderResetTurns();
@@ -88,7 +88,7 @@ void loop()
         counterClicks += encoderGetClicks();
         encoderResetClicks();
         SEND_DEBUG_MESSAGE(0, "counterClicks = "+String(counterClicks, DEC));
-      }*/
+      }
 
       break;
 

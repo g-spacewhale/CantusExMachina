@@ -10,3 +10,6 @@
 [submodule "BandController/lib/SdFat"]
 	path = BandController/lib/SdFat
 	url = https://github.com/greiman/SdFat.git
+[submodule "InstrumentController/lib/MIDI"]
+	path = InstrumentController/lib/MIDI
+	url = https://github.com/FortySevenEffects/arduino_midi_library.git

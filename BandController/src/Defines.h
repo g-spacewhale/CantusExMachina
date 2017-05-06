@@ -29,18 +29,46 @@
 #define _STATE_SD_ERROR 2
 #define _STATE_HOME 3
 
-// ------------------ Defining of Pin mapping ------------------
-// defines the 3 Data-Pins of the Roatary Encoder
-#define _encoderPinA 2
-#define _encoderPinB 3
-#define _encoderPinClick 18
+/*// ------------------ Defining of Pin mapping ------------------
+// defines the Data-Pins for the midi connection
+#define _midiPinTx 18 // has to be a Serial TX pin (Pin 18 -> Serial 1)
 
-// defines the 4 Data-Pins of the Display
+// defines the Data-Pins of the Roatary Encoder
+#define _encoderPinA 2  // has to be an interuppt pin
+#define _encoderPinB 3
+#define _encoderPinClick 19 // has to be an interuppt pin
+
+// defines the Data-Pins of the Display
 #define _displayPinCS 53
 #define _displayPinDC 9
 #define _displayPinRST 8
-#define _displayPinBACKLIGHT 4
+#define _displayPinBACKLIGHT 7 // pwm pin
+// not defined but also connected
+// MISO Pin 50
+// MOSI Pin 51
+// SCK Pin 52
 
-#define _sdPinCS 48
+// defines the Data-Pins of the SD-Card-Reader
+#define _sdPinCS 49*/
+
+// defines the Data-Pins for the midi connection
+#define _midiPinTx 18 // has to be a Serial TX pin (Pin 18 -> Serial 1)
+
+// defines the Data-Pins of the Roatary Encoder
+#define _encoderPinA 3  // has to be an interuppt pin
+#define _encoderPinB 4
+#define _encoderPinClick 2 // has to be an interuppt pin
+
+// defines the Data-Pins of the Display & SD-Card Reader
+#define _displayPinDC 41
+#define _displayPinRST 43
+#define _sdPinCS 47
+#define _displayPinCS 49
+// not defined but on SPI connected
+// MOSI Pin 51
+// MISO Pin 50
+// SCK Pin 52
+#define _displayPinBACKLIGHT 45 // pwm pin
+
 
 #endif
