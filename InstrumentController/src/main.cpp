@@ -5,6 +5,8 @@
 #define pinDirA 47
 #define pinDirB 49
 
+#define pinLED 13
+
 MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI);
 
 void handleNoteOn(byte channel, byte pitch, byte velocity);
@@ -17,6 +19,7 @@ void setup()
   pinMode(pinSpeed, OUTPUT);
   pinMode(pinDirA, OUTPUT);
   pinMode(pinDirB, OUTPUT);
+  pinMode(pinLED, OUTPUT);
 
   MIDI.setHandleNoteOn(handleNoteOn);
   MIDI.setHandleNoteOff(handleNoteOff);
@@ -45,14 +48,22 @@ void hit(int velocity)
 {
   digitalWrite(pinDirA, LOW);
   digitalWrite(pinDirB, HIGH);
+  digitalWrite(pinLED, HIGH);
 
-  analogWrite(pinSpeed, velocity * 2);
+  analogWrite(pinSpeed, 255);
+  delay(130);
+  analogWrite(pinSpeed, 0);
+  up();
+  //analogWrite(pinSpeed, velocity * 2);
 }
 
 void up()
 {
   digitalWrite(pinDirB, LOW);
   digitalWrite(pinDirA, HIGH);
+  digitalWrite(pinLED, LOW);
 
   analogWrite(pinSpeed, 255);
+  delay(130);
+  analogWrite(pinSpeed, 0);
 }
