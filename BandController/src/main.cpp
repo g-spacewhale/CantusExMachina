@@ -26,6 +26,8 @@ unsigned char _displayBrightness = 255;
 volatile char _encoderCounterTurns = 0;
 volatile unsigned char _encoderCounterClicks = 0;
 
+char _currPosition = 0;
+
 char counterTurns = 0;
 char counterClicks = 0;
 
@@ -47,6 +49,7 @@ void encoderResetTurns();
 void encoderResetClicks();
 
 void changeState(unsigned char newState);
+void initState(unsigned char newState);
 void bootUpRoutine();
 
 void setup()
@@ -63,6 +66,8 @@ void setup()
 
     attachInterrupt(digitalPinToInterrupt(_encoderPinA), encoderInterruptTurn, CHANGE);
     attachInterrupt(digitalPinToInterrupt(_encoderPinClick), encoderInterruptClick, RISING);
+
+    changeState(_STATE_BOOTUP);
 }
 
 // Statemachine Loop
@@ -71,11 +76,25 @@ void loop()
   switch (_state)
   {
     case _STATE_BOOTUP:
-      bootUpRoutine();
+    case _STATE_SD_ERROR:
+    case _STATE_ERROR:
+      // all these states don't need a loop
       break;
 
     case _STATE_HOME:
 
+      // check if encoder was rotated
+      if(encoderGetTurns())
+      {
+        // change position
+
+      }
+
+      // check if encoder was clicked
+      if(encoderGetClicks())
+      {
+
+      }
       // encoder Testing
       if(encoderGetTurns())
       {
@@ -92,6 +111,29 @@ void loop()
 
       break;
 
+    default:
+      //Error message
+      SEND_DEBUG_MESSAGE(0, "ERROR: Statemachine went into default case");
+      break;
+  }
+}
+
+void changeState(unsigned char newState)
+{
+  _previousState = _state;
+  _state = newState;
+  SEND_DEBUG_MESSAGE(0, "Changed State");
+  initState(_state);
+}
+
+void initState(unsigned char newState)
+{
+  switch (_state)
+  {
+    case _STATE_BOOTUP:
+      bootUpRoutine();
+      break;
+
     case _STATE_SD_ERROR:   // SD-Card was not initialized due to an error
       SEND_DEBUG_MESSAGE(1,"SD-Card Error");
       break;
@@ -99,11 +141,61 @@ void loop()
     case _STATE_ERROR:
       break;
 
+    case _STATE_HOME:
+      // init Home (draw menu for first time)
+      break;
+
     default:
       //Error message
-      SEND_DEBUG_MESSAGE(0, "ERROR: Statemachine went into default case");
+      SEND_DEBUG_MESSAGE(0, "ERROR: initState went into default case (newState = "+String(newState)+")");
       break;
   }
+}
+
+void bootUpRoutine()
+{
+  // Load Settings from EEPROM
+  _language = EEPROM.read(_EEPROM_LANGUAGE);
+  SEND_DEBUG_MESSAGE(0, "Language from EEPROM = "+String(_language, DEC));
+  if(_language !=_languageEnglish || _language != _languageGerman)
+  {
+    _language = _languageEnglish;
+    EEPROM.write(_EEPROM_LANGUAGE, _language);
+  }
+
+  _displayBrightness = EEPROM.read(_EEPROM_DISPLAY_BRIGHTNESS);
+  SEND_DEBUG_MESSAGE(0, "Display Brightness from EEPROM = "+String(_displayBrightness, DEC));
+  if(_displayBrightness < 0 || _displayBrightness > 255)
+  {
+    _displayBrightness = 255;
+    EEPROM.write(_EEPROM_DISPLAY_BRIGHTNESS, _displayBrightness);
+  }
+  _display.setBacklight(_displayBrightness);
+
+  // Init SD-Card
+  if(!_dataManager.begin())
+  {
+    changeState(_STATE_SD_ERROR);
+    return;
+  }
+
+  // Init Display
+  _display.begin();
+
+  // Load infos from SD card
+  File languageFile;
+  if(_dataManager.getLanguageFile(_languageEnglish, languageFile))
+  {
+    _translation.createLanguageMap(languageFile);
+    languageFile.close();
+  } else {
+    SEND_DEBUG_MESSAGE(0, "Error: Language file not available");
+    changeState(_STATE_ERROR);
+    return;
+  }
+
+  // When all done:
+  changeState(_STATE_HOME);
 }
 
 void sendDebugMessage(unsigned char messageCode, String message)
@@ -119,14 +211,14 @@ void encoderInterruptTurn()
   if (digitalRead(_encoderPinA) == HIGH)    // found a low-to-high on channel A
   {
     if (digitalRead(_encoderPinB) == LOW)   // check channel B to see which way
-      _encoderCounterTurns--;                // encoder is turning: CCW
+      _encoderCounterTurns++;                // encoder is turning: CCW
     else
-      _encoderCounterTurns++;                // encoder is turning:CW
+      _encoderCounterTurns--;                // encoder is turning:CW
   } else {                                  // found a high-to-low on channel A
     if (digitalRead(_encoderPinB) == LOW)   // check channel B to see which way
-      _encoderCounterTurns++;                // encoder is turning:CW
+      _encoderCounterTurns--;                // encoder is turning:CW
     else
-      _encoderCounterTurns--;                // encoder is turning:CCW
+      _encoderCounterTurns++;                // encoder is turning:CCW
   }
 }
 
@@ -153,57 +245,4 @@ void encoderResetTurns()
 void encoderResetClicks()
 {
   _encoderCounterClicks = 0;
-}
-
-void changeState(unsigned char newState)
-{
-  _previousState = _state;
-  _state = newState;
-  SEND_DEBUG_MESSAGE(0, "Changed State");
-}
-
-void bootUpRoutine()
-{
-  // Load Settings from EEPROM
-  _language = EEPROM.read(_EEPROM_LANGUAGE);
-  SEND_DEBUG_MESSAGE(0, "Language from EEPROM = "+String(_language, DEC));
-  if(_language !=_languageEnglish || _language != _languageGerman)
-  {
-    _language = _languageEnglish;
-    EEPROM.write(_EEPROM_LANGUAGE, _language);
-  }
-
-  _displayBrightness = EEPROM.read(_EEPROM_DISPLAY_BRIGHTNESS);
-  SEND_DEBUG_MESSAGE(0, "Display Brightness from EEPROM = "+String(_displayBrightness, DEC));
-  if(_displayBrightness < 0 || _displayBrightness > 255)
-  {
-    _displayBrightness = 255;
-    EEPROM.write(_EEPROM_DISPLAY_BRIGHTNESS, _displayBrightness);
-  }
-  _display.setBacklight(_displayBrightness);
-
-  // Init Display
-  _display.begin();
-
-  // Init SD-Card
-  if(!_dataManager.begin())
-  {
-    changeState(_STATE_SD_ERROR);
-    return;
-  }
-
-  // Load infos from SD card
-  File languageFile;
-  if(_dataManager.getLanguageFile(_languageEnglish, languageFile))
-  {
-    _translation.createLanguageMap(languageFile);
-    languageFile.close();
-  } else {
-    SEND_DEBUG_MESSAGE(0, "Error: Language file not available");
-    changeState(_STATE_ERROR);
-    return;
-  }
-
-  // When all done:
-  changeState(_STATE_HOME);
 }
