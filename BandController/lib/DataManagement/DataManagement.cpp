@@ -42,7 +42,7 @@ char DataManagement::begin()
   }
 }
 
-char DataManagement::getLanguageFile(char language, File &languageFile)
+/*char DataManagement::getLanguageFile(char language, File &languageFile)
 {
   switch (language)
   {
@@ -70,4 +70,4 @@ char DataManagement::getLanguageFile(char language, File &languageFile)
       break;
   }
   return 0;
-}
+}*/

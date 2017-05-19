@@ -57,8 +57,6 @@ class Display
     void createHeader(String title);
     void createFooter(String text);
     void createHomeScreenButtons(char selection, String label1, String label2);
-
-    String getTranslation(String languageCode);
     void printTestScreen();
 
     void bmpDraw(String filename, uint16_t x, uint16_t y, Adafruit_ILI9340 _display);

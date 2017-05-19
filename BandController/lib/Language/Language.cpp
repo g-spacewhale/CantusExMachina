@@ -12,21 +12,33 @@
 #include <Arduino.h>
 #include <SD.h>
 
-Language::Language(){}
-
-String Language::getTranslation(File &languageFile, String languageCode)
+Language::Language()
 {
-  String _languageCode;
-  String _translation;
+  _language = _languageEnglish;
+  createLanguageMap();
+}
 
-  while (languageFile.available())
+String Language::getTranslation(String languageCode, uint8_t language)
+{
+  for(uint16_t i = 0; i < _translationsCount; i++)
   {
-    _languageCode = languageFile.readStringUntil('=');
-    _translation = languageFile.readStringUntil('\n');
-
-    if(_languageCode.indexOf(languageCode) >= 0 )
-      return _translation;
+    if(_languageCode[i].indexOf(languageCode) >= 0 )
+      return _translations[language][i];
   }
-
   return "NA";
+}
+
+void Language::createLanguageMap()
+{
+  _languageCode                   [0] = "home_title";
+  _translations[_languageEnglish] [0] = "Menu";
+  _translations[_languageGerman]  [0] = "Menü";
+
+  _languageCode                   [1] = "songs_title";
+  _translations[_languageEnglish] [1] = "Songs";
+  _translations[_languageGerman]  [1] = "Lieder";
+
+  _languageCode                   [2] = "settings_title";
+  _translations[_languageEnglish] [2] = "Settings";
+  _translations[_languageGerman]  [2] = "Einstellungen";
 }

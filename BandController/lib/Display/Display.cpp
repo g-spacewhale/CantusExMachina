@@ -112,18 +112,7 @@ void Display::setBacklight(unsigned char backlight)
 
 void Display::changeLanguage(unsigned char language)
 {
-  if(_languageFile.available())
-    _languageFile.close();
-
   _language = language;
-
-  _dataManager.getLanguageFile(_language, _languageFile);
-}
-
-String Display::getTranslation(String languageCode)
-{
-  _languageFile.seek(0);
-  return _translation.getTranslation(_languageFile, "settings_title");
 }
 
 void Display::displayErrorMessage(char errorCode, String errorMessage)
@@ -154,16 +143,16 @@ void Display::changeBootupInfo(String text)
 void Display::displayHomeScreen()
 {
   _display.fillScreen(_COLOR_OFF_WHITE);
-  createHeader("[Home Screen]");
+  createHeader(_translation.getTranslation("home_title", _language));
   _display.fillRect(0, _HEADER_HEIGHT, _display.width(), _display.height() - _HEADER_HEIGHT - _FOOTER_HEIGHT, _COLOR_OFF_WHITE);
   createFooter("Rotate to choose | Click to select");
   // create buttons
-  createHomeScreenButtons(0, "Songs", getTranslation("settings_title"));
+  changeHomeScreenSelection(0);
 }
 
 void Display::changeHomeScreenSelection(char selection)
 {
-  createHomeScreenButtons(selection, "Songs", getTranslation("settings_title"));
+  createHomeScreenButtons(selection, _translation.getTranslation("songs_title", _language), _translation.getTranslation("settings_title", _language));
 }
 
 // Helper functions
@@ -196,7 +185,7 @@ void Display::centerText(String text, char fontSize, uint16_t color, uint16_t x,
 void Display::createHeader(String title)
 {
   _display.fillRect(0, 0, _display.width(), _HEADER_HEIGHT, _COLOR_DARK_GREY);
-  centerText(title, 2, _COLOR_OFF_WHITE, 0, 0, _display.width(), _HEADER_HEIGHT);
+  centerText("[ "+title+" ]", 2, _COLOR_OFF_WHITE, 0, 0, _display.width(), _HEADER_HEIGHT);
 }
 
 void Display::createFooter(String text)
