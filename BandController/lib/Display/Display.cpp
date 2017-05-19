@@ -8,9 +8,6 @@
 
 #include "Display.h"
 #include <Arduino.h>
-#include <Adafruit_ILI9340.h>
-#include <SD.h>
-#include <Fonts/FreeMono12pt7b.h>
 
 Display::Display(int pinCS, int pinDC, int pinRST, int pinBACKLIGHT, unsigned char backlight):_display(pinCS, pinDC, pinRST)
 {
@@ -26,60 +23,9 @@ Display::Display(int pinCS, int pinDC, int pinRST, int pinBACKLIGHT, unsigned ch
 
 void Display::begin()
 {
-  uint16_t white = _display.Color565(255, 255, 255);
-  //uint16_t offWhite = _display.Color565(229, 225, 209);
-  uint16_t offWhite = _display.Color565(224, 213, 170); // new
-  uint16_t lightGrey = _display.Color565(82, 97, 109);
-  uint16_t darkGrey = _display.Color565(44, 52, 59);
-  uint16_t red = _display.Color565(196, 71, 65);
-
   _display.begin();
   _display.setRotation(3);
-  _display.fillScreen(darkGrey);
-  /*
-  _display.fillRect(0, 0, 64, 240, white);   // White
-  _display.fillRect(64, 0, 64, 240, offWhite);  // Off-White
-  _display.fillRect(128, 0, 64, 240, lightGrey);   // light grey
-  _display.fillRect(192, 0, 64, 240, darkGrey);    // dark grey
-  _display.fillRect(256, 0, 64, 240, red);   // RED
-
-  _display.fillRect(27, 30, 10, 10, white);   // White
-  _display.fillRect(27, 70, 10, 10, offWhite);  // Off-White
-  _display.fillRect(27, 110, 10, 10, lightGrey);   // light grey
-  _display.fillRect(27, 150, 10, 10, darkGrey);    // dark grey
-  _display.fillRect(27, 190, 10, 10, red);   // RED
-
-  _display.fillRect(91, 30, 10, 10, white);   // White
-  _display.fillRect(91, 70, 10, 10, offWhite);  // Off-White
-  _display.fillRect(91, 110, 10, 10, lightGrey);   // light grey
-  _display.fillRect(91, 150, 10, 10, darkGrey);    // dark grey
-  _display.fillRect(91, 190, 10, 10, red);   // RED
-
-  _display.fillRect(155, 30, 10, 10, white);   // White
-  _display.fillRect(155, 70, 10, 10, offWhite);  // Off-White
-  _display.fillRect(155, 110, 10, 10, lightGrey);   // light grey
-  _display.fillRect(155, 150, 10, 10, darkGrey);    // dark grey
-  _display.fillRect(155, 190, 10, 10, red);   // RED
-
-  _display.fillRect(219, 30, 10, 10, white);   // White
-  _display.fillRect(219, 70, 10, 10, offWhite);  // Off-White
-  _display.fillRect(219, 110, 10, 10, lightGrey);   // light grey
-  _display.fillRect(219, 150, 10, 10, darkGrey);    // dark grey
-  _display.fillRect(219, 190, 10, 10, red);   // RED
-
-  _display.fillRect(283, 30, 10, 10, white);   // White
-  _display.fillRect(283, 70, 10, 10, offWhite);  // Off-White
-  _display.fillRect(283, 110, 10, 10, lightGrey);   // light grey
-  _display.fillRect(283, 150, 10, 10, darkGrey);    // dark grey
-  _display.fillRect(283, 190, 10, 10, red);   // RED
-  */
-
-  bmpDraw("/grfx/Logo.bmp",75,22,_display);
-
-  _display.setCursor(((320-(18*6))/2), 215);
-  _display.setTextColor(lightGrey);
-  _display.setTextSize(1);
-  _display.println("SD-Card Loading...");
+  _display.fillScreen(_COLOR_DARK_GREY);
 }
 
 void Display::setBacklight(unsigned char backlight)
@@ -88,7 +34,92 @@ void Display::setBacklight(unsigned char backlight)
   analogWrite(_pinBACKLIGHT, _backlight);
 }
 
-// This function opens a Windows Bitmap (BMP) file and
+void Display::displayErrorMessage(String errorText)
+{
+  char marginX = 20;
+  char marginY = 50;
+  _display.fillScreen(_COLOR_DARK_GREY);
+  _display.fillRect(marginX, marginY, (_display.width()-(2*marginX)), (_display.height()-(2*marginY)), _COLOR_RED);
+  centerText(errorText, 2, _COLOR_OFF_WHITE, marginX, marginY, (_display.width()-(2*marginX)), (_display.height()-(2*marginY)));
+}
+
+void Display::displayBootupScreen()
+{
+  _display.fillRect(5, 10, 60, 5, _COLOR_RED);
+  centerText("Testing", 1, _COLOR_OFF_WHITE, 5, 10, 60, 5);
+
+  bmpDraw("/grfx/Logo.bmp",75,22,_display);
+}
+
+void Display::changeBootupInfo(String text)
+{
+  _display.fillRect(0, 215, _display.width(), 8, _COLOR_DARK_GREY);
+  centerText(text,1,_COLOR_LIGHT_GREY,0,215,_display.width());
+}
+
+void Display::displayHomeScreen(Language translation)
+{
+  _display.fillScreen(_COLOR_OFF_WHITE);
+  createHeader("[Home Screen]");
+  createFooter("Rotate to choose | Click to select");
+  // create buttons
+}
+
+void Display::changeHomeScreenSelection(char selection)
+{
+
+}
+
+// Helper functions
+
+void Display::centerText(String text, char fontSize, uint16_t color, uint16_t x, uint16_t y, uint16_t width, uint16_t height)
+{
+  uint8_t fontWidth = fontSize * 6; // 6 is standard font width
+  uint8_t fontHeight = fontSize * 8; // 8 is standard font height
+  uint8_t length = text.length();
+
+  if(height == 0)
+    height = fontHeight;
+
+  if((length * fontWidth) <= width && fontHeight <= height)
+  {
+    _display.setCursor(x + ((width-(length*fontWidth))/2), y + ((height-fontHeight)/2));
+  } else if((length * fontWidth) > width) {
+    _display.setCursor(x - (((length*fontWidth)-width)/2), y + ((height-fontHeight)/2));
+  } else if(fontHeight > height) {
+    _display.setCursor(x + ((width-(length*fontWidth))/2), y - ((fontHeight-height)/2));
+  } else {
+    _display.setCursor(x - (((length*fontWidth)-width)/2), y - ((fontHeight-height)/2));
+  }
+
+  _display.setTextSize(fontSize);
+  _display.setTextColor(color);
+  _display.println(text);
+}
+
+void Display::createHeader(String title)
+{
+  _display.fillRect(0, 0, _display.width(), _HEADER_HEIGHT, _COLOR_DARK_GREY);
+  centerText(title, 1, _COLOR_OFF_WHITE, 0, 0, _display.width(), _HEADER_HEIGHT);
+}
+
+void Display::createFooter(String text)
+{
+  _display.fillRect(0, (_display.height()-_FOOTER_HEIGHT), _display.width(), _FOOTER_HEIGHT, _COLOR_LIGHT_GREY);
+  centerText(text, 1, _COLOR_DARK_GREY, 0, (_display.height()-_FOOTER_HEIGHT), _display.width(), _FOOTER_HEIGHT);
+}
+
+// ----------------- ADOPTED CODE ----------------- //
+// The follwoing functions where adopted (and slightly modified)
+// from Adafruits example code for the Adafruit_ILI9340 and can be found
+// https://github.com/adafruit/Adafruit_ILI9340/blob/master/examples/spitftbitmap/spitftbitmap.ino
+//
+// Functions:
+//  - bmpDraw(String filename, uint16_t x, uint16_t y, Adafruit_ILI9340 _display);
+//  - uint16_t Display::read16(File & f);
+//  - uint32_t Display::read32(File & f);
+
+// This function opens a 24 Bit Windows Bitmap (BMP) file and
 // displays it at the given coordinates.  It's sped up
 // by reading many pixels worth of data at a time
 // (rather than pixel by pixel).  Increasing the buffer
@@ -98,23 +129,23 @@ void Display::setBacklight(unsigned char backlight)
 
 #define BUFFPIXEL 20
 
-void Display::bmpDraw(char *filename, uint16_t x, uint16_t y, Adafruit_ILI9340 _display)
+void Display::bmpDraw(String filename, uint16_t x, uint16_t y, Adafruit_ILI9340 _display)
 {
 
   File     bmpFile;
-  int      bmpWidth, bmpHeight;   // W+H in pixels
-  uint8_t  bmpDepth;              // Bit depth (currently must be 24)
-  uint32_t bmpImageoffset;        // Start of image data in file
-  uint32_t rowSize;               // Not always = bmpWidth; may have padding
-  uint8_t  sdbuffer[3*BUFFPIXEL]; // pixel buffer (R+G+B per pixel)
-  uint8_t  buffidx = sizeof(sdbuffer); // Current position in sdbuffer
-  boolean  goodBmp = false;       // Set to true on valid header parse
-  boolean  flip    = true;        // BMP is stored bottom-to-top
+  int      bmpWidth, bmpHeight;         // W+H in pixels
+  uint8_t  bmpDepth;                    // Bit depth (currently must be 24)
+  uint32_t bmpImageoffset;              // Start of image data in file
+  uint32_t rowSize;                     // Not always = bmpWidth; may have padding
+  uint8_t  sdbuffer[3*BUFFPIXEL];       // pixel buffer (R+G+B per pixel)
+  uint8_t  buffidx = sizeof(sdbuffer);  // Current position in sdbuffer
+  boolean  goodBmp = false;             // Set to true on valid header parse
+  boolean  flip    = true;              // BMP is sto_COLOR_RED bottom-to-top
   int      w, h, row, col;
   uint8_t  r, g, b;
   uint32_t pos = 0, startTime = millis();
 
-  if((x >= _display.width()) || (y >= _display.height())) return;
+  if((x >= unsigned(_display.width())) || (y >= unsigned(_display.height()))) return;
 
   Serial.println();
   Serial.print("Loading image '");
@@ -122,7 +153,7 @@ void Display::bmpDraw(char *filename, uint16_t x, uint16_t y, Adafruit_ILI9340 _
   Serial.println('\'');
 
   // Open requested file on SD card
-  if ((bmpFile = SD.open(filename)) == NULL) {
+  if (!(bmpFile = SD.open(filename))) {
     Serial.print("File not found");
     return;
   }
@@ -161,8 +192,8 @@ void Display::bmpDraw(char *filename, uint16_t x, uint16_t y, Adafruit_ILI9340 _
         // Crop area to be loaded
         w = bmpWidth;
         h = bmpHeight;
-        if((x+w-1) >= _display.width())  w = _display.width()  - x;
-        if((y+h-1) >= _display.height()) h = _display.height() - y;
+        if((x+w-1) >= unsigned(_display.width()))  w = _display.width()  - x;
+        if((y+h-1) >= unsigned(_display.height())) h = _display.height() - y;
 
         // Set TFT address window to clipped image bounds
         _display.setAddrWindow(x, y, x+w-1, y+h-1);
@@ -175,9 +206,9 @@ void Display::bmpDraw(char *filename, uint16_t x, uint16_t y, Adafruit_ILI9340 _
           // and scanline padding.  Also, the seek only takes
           // place if the file position actually needs to change
           // (avoids a lot of cluster math in SD library).
-          if(flip) // Bitmap is stored bottom-to-top order (normal BMP)
+          if(flip) // Bitmap is sto_COLOR_RED bottom-to-top order (normal BMP)
             pos = bmpImageoffset + (bmpHeight - 1 - row) * rowSize;
-          else     // Bitmap is stored top-to-bottom
+          else     // Bitmap is sto_COLOR_RED top-to-bottom
             pos = bmpImageoffset + row * rowSize;
           if(bmpFile.position() != pos) { // Need seek?
             bmpFile.seek(pos);
@@ -209,10 +240,8 @@ void Display::bmpDraw(char *filename, uint16_t x, uint16_t y, Adafruit_ILI9340 _
   if(!goodBmp) Serial.println("BMP format not recognized.");
 }
 
-
-
 // These read 16- and 32-bit types from the SD card file.
-// BMP data is stored little-endian, Arduino is little-endian too.
+// BMP data is sto_COLOR_RED little-endian, Arduino is little-endian too.
 // May need to reverse subscript order if porting elsewhere.
 
 uint16_t Display::read16(File & f) {
@@ -229,4 +258,45 @@ uint32_t Display::read32(File & f) {
   ((uint8_t *)&result)[2] = f.read();
   ((uint8_t *)&result)[3] = f.read(); // MSB
   return result;
+}
+
+// ----------------- END OF ADOPTED CODE ----------------- //
+
+void Display::printTestScreen()
+{
+  _display.fillRect(0, 0, 64, 240, _COLOR_WHITE);   // White
+  _display.fillRect(64, 0, 64, 240, _COLOR_OFF_WHITE);  // Off-White
+  _display.fillRect(128, 0, 64, 240, _COLOR_LIGHT_GREY);   // light grey
+  _display.fillRect(192, 0, 64, 240, _COLOR_DARK_GREY);    // dark grey
+  _display.fillRect(256, 0, 64, 240, _COLOR_RED);   // RED
+
+  _display.fillRect(27, 30, 10, 10, _COLOR_WHITE);   // White
+  _display.fillRect(27, 70, 10, 10, _COLOR_OFF_WHITE);  // Off-White
+  _display.fillRect(27, 110, 10, 10, _COLOR_LIGHT_GREY);   // light grey
+  _display.fillRect(27, 150, 10, 10, _COLOR_DARK_GREY);    // dark grey
+  _display.fillRect(27, 190, 10, 10, _COLOR_RED);   // RED
+
+  _display.fillRect(91, 30, 10, 10, _COLOR_WHITE);   // White
+  _display.fillRect(91, 70, 10, 10, _COLOR_OFF_WHITE);  // Off-White
+  _display.fillRect(91, 110, 10, 10, _COLOR_LIGHT_GREY);   // light grey
+  _display.fillRect(91, 150, 10, 10, _COLOR_DARK_GREY);    // dark grey
+  _display.fillRect(91, 190, 10, 10, _COLOR_RED);   // RED
+
+  _display.fillRect(155, 30, 10, 10, _COLOR_WHITE);   // White
+  _display.fillRect(155, 70, 10, 10, _COLOR_OFF_WHITE);  // Off-White
+  _display.fillRect(155, 110, 10, 10, _COLOR_LIGHT_GREY);   // light grey
+  _display.fillRect(155, 150, 10, 10, _COLOR_DARK_GREY);    // dark grey
+  _display.fillRect(155, 190, 10, 10, _COLOR_RED);   // RED
+
+  _display.fillRect(219, 30, 10, 10, _COLOR_WHITE);   // White
+  _display.fillRect(219, 70, 10, 10, _COLOR_OFF_WHITE);  // Off-White
+  _display.fillRect(219, 110, 10, 10, _COLOR_LIGHT_GREY);   // light grey
+  _display.fillRect(219, 150, 10, 10, _COLOR_DARK_GREY);    // dark grey
+  _display.fillRect(219, 190, 10, 10, _COLOR_RED);   // RED
+
+  _display.fillRect(283, 30, 10, 10, _COLOR_WHITE);   // White
+  _display.fillRect(283, 70, 10, 10, _COLOR_OFF_WHITE);  // Off-White
+  _display.fillRect(283, 110, 10, 10, _COLOR_LIGHT_GREY);   // light grey
+  _display.fillRect(283, 150, 10, 10, _COLOR_DARK_GREY);    // dark grey
+  _display.fillRect(283, 190, 10, 10, _COLOR_RED);   // RED
 }

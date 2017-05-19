@@ -135,6 +135,7 @@ void initState(unsigned char newState)
       break;
 
     case _STATE_SD_ERROR:   // SD-Card was not initialized due to an error
+      _display.displayErrorMessage("Error: SD-Card Error");
       SEND_DEBUG_MESSAGE(1,"SD-Card Error");
       break;
 
@@ -143,6 +144,7 @@ void initState(unsigned char newState)
 
     case _STATE_HOME:
       // init Home (draw menu for first time)
+      _display.displayHomeScreen(_translation);
       break;
 
     default:
@@ -181,6 +183,9 @@ void bootUpRoutine()
 
   // Init Display
   _display.begin();
+  _display.displayBootupScreen();
+
+  _display.changeBootupInfo("Load languageFile");
 
   // Load infos from SD card
   File languageFile;
@@ -193,6 +198,12 @@ void bootUpRoutine()
     changeState(_STATE_ERROR);
     return;
   }
+
+  _display.changeBootupInfo("Parse Song Info");
+
+  delay(5000);
+
+  _display.changeBootupInfo("bootUpRoutine done");
 
   // When all done:
   changeState(_STATE_HOME);
