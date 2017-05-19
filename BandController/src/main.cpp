@@ -14,6 +14,7 @@
 
 // custom classes and additional headers for information
 #include <Defines.h>        // holds all Defines
+#include <ErrorCodes.h>     // Definitions of ErrorCodes
 #include <DataManagement.h> // custom class to manage data on sd card
 #include <Language.h>       //
 #include <Display.h>        // custom Display class to manage the tft Display
@@ -26,20 +27,19 @@ unsigned char _displayBrightness = 255;
 volatile char _encoderCounterTurns = 0;
 volatile unsigned char _encoderCounterClicks = 0;
 
-char _currPosition = 0;
-
-char counterTurns = 0;
-char counterClicks = 0;
+uint16_t _errorCode = 0;
+uint16_t _currPosition = 0;
 
 unsigned char _state = _STATE_BOOTUP;       // holds the current state of the statemachine - refere to 'Defining of States'
 unsigned char _previousState = 0;           // holds the previous state of the statemachine
 
-Display _display = Display(_displayPinCS, _displayPinDC, _displayPinRST, _displayPinBACKLIGHT, _displayBrightness);
+Display _display = Display(_displayPinCS, _displayPinDC, _displayPinRST, _displayPinBACKLIGHT, _displayBrightness, _sdPinCS, _languageEnglish);
 DataManagement _dataManager = DataManagement(_sdPinCS);
 Language _translation = Language();
 
 // ------------------- Forward declarations --------------------
 void sendDebugMessage(unsigned char messageCode, String message);
+void error(unsigned char errorCode);
 
 void encoderInterruptTurn();
 void encoderInterruptClick();
@@ -76,38 +76,41 @@ void loop()
   switch (_state)
   {
     case _STATE_BOOTUP:
-    case _STATE_SD_ERROR:
     case _STATE_ERROR:
       // all these states don't need a loop
       break;
 
     case _STATE_HOME:
-
       // check if encoder was rotated
       if(encoderGetTurns())
       {
         // change position
-
+        _currPosition += encoderGetTurns();
+        _currPosition = _currPosition % 2; // transform to binary
+        encoderResetTurns();
+        _display.changeHomeScreenSelection(_currPosition);
       }
 
       // check if encoder was clicked
       if(encoderGetClicks())
       {
-
-      }
-      // encoder Testing
-      if(encoderGetTurns())
-      {
-        counterTurns += encoderGetTurns();
-        encoderResetTurns();
-        SEND_DEBUG_MESSAGE(0, "counterTurns = "+String(counterTurns, DEC));
-      }
-      if(encoderGetClicks())
-      {
-        counterClicks += encoderGetClicks();
         encoderResetClicks();
-        SEND_DEBUG_MESSAGE(0, "counterClicks = "+String(counterClicks, DEC));
+        if(_currPosition == 0) // Songs was selected
+        {
+          //changeState(_STATE_SONG_SELECTION);
+          error(_ERROR_NOERROR);
+        } else {  // Settings was selected
+          //changeState(_STATE_SETTINGS);
+          error(_ERROR_NOERROR);
+        }
       }
+      break;
+
+    case _STATE_SONG_SELECTION:
+
+      break;
+
+    case _STATE_SETTINGS:
 
       break;
 
@@ -126,6 +129,7 @@ void changeState(unsigned char newState)
   initState(_state);
 }
 
+// intitialization of each state after changing the state
 void initState(unsigned char newState)
 {
   switch (_state)
@@ -134,17 +138,21 @@ void initState(unsigned char newState)
       bootUpRoutine();
       break;
 
-    case _STATE_SD_ERROR:   // SD-Card was not initialized due to an error
-      _display.displayErrorMessage("Error: SD-Card Error");
-      SEND_DEBUG_MESSAGE(1,"SD-Card Error");
-      break;
-
     case _STATE_ERROR:
+      _display.displayErrorMessage(_errorCode, _errorMessages[_errorCode]);
       break;
 
     case _STATE_HOME:
       // init Home (draw menu for first time)
-      _display.displayHomeScreen(_translation);
+      _display.displayHomeScreen();
+      break;
+
+    case _STATE_SONG_SELECTION:
+
+      break;
+
+    case _STATE_SETTINGS:
+
       break;
 
     default:
@@ -156,6 +164,8 @@ void initState(unsigned char newState)
 
 void bootUpRoutine()
 {
+  char sdError = 0;
+
   // Load Settings from EEPROM
   _language = EEPROM.read(_EEPROM_LANGUAGE);
   SEND_DEBUG_MESSAGE(0, "Language from EEPROM = "+String(_language, DEC));
@@ -172,36 +182,32 @@ void bootUpRoutine()
     _displayBrightness = 255;
     EEPROM.write(_EEPROM_DISPLAY_BRIGHTNESS, _displayBrightness);
   }
-  _display.setBacklight(_displayBrightness);
 
-  // Init SD-Card
-  if(!_dataManager.begin())
-  {
-    changeState(_STATE_SD_ERROR);
-    return;
-  }
+  sdError = !_dataManager.begin();
 
   // Init Display
+  _display.changeLanguage(_language);
+  _display.setBacklight(_displayBrightness);
   _display.begin();
   _display.displayBootupScreen();
+
+
+  // Init SD-Card
+  _display.changeBootupInfo("Initializing SD-Card");
+  if(sdError)
+  {
+    error(_ERROR_SDCARD);
+    return;
+  }
 
   _display.changeBootupInfo("Load languageFile");
 
   // Load infos from SD card
-  File languageFile;
-  if(_dataManager.getLanguageFile(_languageEnglish, languageFile))
-  {
-    _translation.createLanguageMap(languageFile);
-    languageFile.close();
-  } else {
-    SEND_DEBUG_MESSAGE(0, "Error: Language file not available");
-    changeState(_STATE_ERROR);
-    return;
-  }
+
 
   _display.changeBootupInfo("Parse Song Info");
 
-  delay(5000);
+  //delay(5000);
 
   _display.changeBootupInfo("bootUpRoutine done");
 
@@ -215,6 +221,14 @@ void sendDebugMessage(unsigned char messageCode, String message)
   Serial.print(messageCode);
   Serial.print("):");
   Serial.println(message);
+}
+
+
+void error(unsigned char errorCode)
+{
+  _errorCode = errorCode;
+  SEND_DEBUG_MESSAGE(100+errorCode, _errorMessages[_errorCode]);
+  changeState(_STATE_ERROR);
 }
 
 void encoderInterruptTurn()

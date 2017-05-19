@@ -26,8 +26,9 @@
 // State 0 reserved for init of previousState
 #define _STATE_ERROR 0
 #define _STATE_BOOTUP 1
-#define _STATE_SD_ERROR 2
-#define _STATE_HOME 3
+#define _STATE_HOME 2
+#define _STATE_SONG_SELECTION 3
+#define _STATE_SETTINGS 4
 
 /*// ------------------ Defining of Pin mapping ------------------
 // defines the Data-Pins for the midi connection

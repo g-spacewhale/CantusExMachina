@@ -10,9 +10,8 @@
 #define DataManagement_h
 
 #include <SD.h>
+#include <Language.h>
 
-#define _languageEnglish 0    // english is the standard language
-#define _languageGerman 1
 
 class DataManagement
 {

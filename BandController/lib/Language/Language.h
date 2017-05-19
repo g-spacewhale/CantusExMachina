@@ -10,6 +10,9 @@
 #ifndef Language_h
 #define Language_h
 
+#define _languageEnglish 0    // english is the standard language
+#define _languageGerman 1
+
 #include <Arduino.h>
 #include <SD.h>
 
@@ -17,12 +20,9 @@ class Language
 {
   public:
     Language();
-    char createLanguageMap(File &languageFile);
-    String getTranslation(String languageCode);
+    String getTranslation(File &languageFile, String languageCode);
 
   private:
-    String _languageCode[];
-    String _translation[];
 };
 
 #endif
