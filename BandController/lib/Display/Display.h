@@ -48,6 +48,7 @@ class Display
     Adafruit_ILI9340 _display;
     DataManagement _dataManager;
     Language _translation;
+    File _languageFile;
     uint32_t read32(File & f);
     uint16_t read16(File & f);
 

@@ -112,24 +112,18 @@ void Display::setBacklight(unsigned char backlight)
 
 void Display::changeLanguage(unsigned char language)
 {
+  if(_languageFile.available())
+    _languageFile.close();
+
   _language = language;
+
+  _dataManager.getLanguageFile(_language, _languageFile);
 }
 
 String Display::getTranslation(String languageCode)
 {
-  File languageFile;
-  String tmp;
-
-  if(_dataManager.getLanguageFile(_language, languageFile))
-  {
-    tmp = _translation.getTranslation(languageFile, "settings_title");
-    languageFile.close();
-  } else {
-    tmp = "ERROR";
-    languageFile.close();
-  }
-
-  return tmp;
+  _languageFile.seek(0);
+  return _translation.getTranslation(_languageFile, "settings_title");
 }
 
 void Display::displayErrorMessage(char errorCode, String errorMessage)
