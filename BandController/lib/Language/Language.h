@@ -10,10 +10,11 @@
 #ifndef Language_h
 #define Language_h
 
+#define _LANGUAGE_COUNT 2
 #define _languageEnglish 0    // english is the standard language
 #define _languageGerman 1
 
-#define _translationsCount 5
+#define _translationsCount 8
 
 #include <Arduino.h>
 #include <SD.h>
@@ -29,7 +30,7 @@ class Language
     uint8_t _language;
     String _languageCode[_translationsCount];
     String _translations[2][_translationsCount];
-    
+
     void createLanguageMap();
 };
 

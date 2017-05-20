@@ -104,7 +104,7 @@ void Display::begin()
   _display.fillScreen(_COLOR_DARK_GREY);
 }
 
-void Display::setBacklight(unsigned char backlight)
+void Display::changeBrightness(unsigned char backlight)
 {
   _backlight = backlight;
   analogWrite(_pinBACKLIGHT, _backlight);
@@ -130,7 +130,7 @@ void Display::displayErrorMessage(char errorCode, String errorMessage)
 
 void Display::displayBootupScreen()
 {
-  //bmpDraw("/grfx/Logo.bmp",75,25,_display);
+  bmpDraw("/grfx/Logo.bmp",75,25,_display);
   changeBootupInfo("Bootup");
 }
 
@@ -142,10 +142,9 @@ void Display::changeBootupInfo(String text)
 
 void Display::displayHomeScreen()
 {
-  _display.fillScreen(_COLOR_OFF_WHITE);
   createHeader(_translation.getTranslation("home_title", _language));
   _display.fillRect(0, _HEADER_HEIGHT, _display.width(), _display.height() - _HEADER_HEIGHT - _FOOTER_HEIGHT, _COLOR_OFF_WHITE);
-  createFooter("Rotate to choose | Click to select");
+  createFooter(_translation.getTranslation("footer", _language));
   // create buttons
   changeHomeScreenSelection(0);
 }
@@ -153,6 +152,40 @@ void Display::displayHomeScreen()
 void Display::changeHomeScreenSelection(char selection)
 {
   createHomeScreenButtons(selection, _translation.getTranslation("songs_title", _language), _translation.getTranslation("settings_title", _language));
+}
+
+
+void Display::displaySettings()
+{
+  createHeader(_translation.getTranslation("settings_title", _language));
+  _display.fillRect(0, _HEADER_HEIGHT, _display.width(), _display.height() - _HEADER_HEIGHT - _FOOTER_HEIGHT, _COLOR_OFF_WHITE);
+  createFooter(_translation.getTranslation("footer", _language));
+  // create buttons
+  changeSettingsSelection(0);
+}
+
+void Display::changeSettingsSelection(char selection)
+{
+  createSettingsItem(0, _translation.getTranslation("language_label", _language), _translation.getTranslation("language_code", _language), selection == _SETTINGS_LANGUAGE);
+  createSettingsItem(1, _translation.getTranslation("brightness_label", _language), String(map(_backlight, 0, 255, 0, 100))+"%", selection == _SETTINGS_BRIGHTNESS);
+  createSettingsItem(2, _translation.getTranslation("return_label", _language), "", selection == _SETTINGS_RETURN);
+}
+
+void Display::changeSettingsValue(char selection, int valueChange)
+{
+  uint16_t y = _HEADER_HEIGHT + 10 + (_ITEM_HEIGHT * selection);
+  String value = "NA";
+
+  _display.fillRect(_display.width()-35-80 , y, 80, _ITEM_HEIGHT, _COLOR_RED);
+  switch (selection)
+  {
+    case _SETTINGS_LANGUAGE:
+      value = _translation.getTranslation("language_code", valueChange);
+      break;
+    case _SETTINGS_BRIGHTNESS:
+      value = String(valueChange)+"%";
+  }
+  centerTextVerticallyAllignRight(value, 2, _COLOR_OFF_WHITE, _display.width()-35-80, y, 80, _ITEM_HEIGHT);
 }
 
 // Helper functions
@@ -165,6 +198,8 @@ void Display::centerText(String text, char fontSize, uint16_t color, uint16_t x,
 
   if(height == 0)
     height = fontHeight;
+  if(width == 0)
+    width = fontWidth * length;
 
   if((length * fontWidth) <= width && fontHeight <= height)
   {
@@ -182,6 +217,48 @@ void Display::centerText(String text, char fontSize, uint16_t color, uint16_t x,
   _display.println(text);
 }
 
+void Display::centerTextVerticallyAllignLeft(String text, char fontSize, uint16_t color, uint16_t x, uint16_t y, uint16_t height)
+{
+  uint8_t fontHeight = fontSize * 8; // 8 is standard font height
+
+  if(height == 0)
+    height = fontHeight;
+
+  if(fontHeight <= height)
+  {
+    _display.setCursor(x, y + ((height-fontHeight)/2) + (fontSize/2)); //  - (fontSize/2) -> because of the empty spacing pixel in the character
+  } else if(fontHeight > height) {
+    _display.setCursor(x, y - ((fontHeight-height)/2) + (fontSize/2));
+  }
+
+  _display.setTextSize(fontSize);
+  _display.setTextColor(color);
+  _display.println(text);
+}
+
+void Display::centerTextVerticallyAllignRight(String text, char fontSize, uint16_t color, uint16_t x, uint16_t y, uint16_t width, uint16_t height)
+{
+  uint8_t fontWidth = fontSize * 6; // 6 is standard font width
+  uint8_t fontHeight = fontSize * 8; // 8 is standard font height
+  uint8_t length = text.length();
+
+  if(height == 0)
+    height = fontHeight;
+  if(width == 0)
+    width = fontWidth * length;
+
+  if(fontHeight <= height)
+  {
+    _display.setCursor(x + width - (fontWidth * length), y + ((height-fontHeight)/2) + (fontSize/2)); //  - (fontSize/2) -> because of the empty spacing pixel in the character
+  } else if(fontHeight > height) {
+    _display.setCursor(x + width - (fontWidth * length), y - ((fontHeight-height)/2) + (fontSize/2));
+  }
+
+  _display.setTextSize(fontSize);
+  _display.setTextColor(color);
+  _display.println(text);
+}
+
 void Display::createHeader(String title)
 {
   _display.fillRect(0, 0, _display.width(), _HEADER_HEIGHT, _COLOR_DARK_GREY);
@@ -191,7 +268,7 @@ void Display::createHeader(String title)
 void Display::createFooter(String text)
 {
   _display.fillRect(0, (_display.height()-_FOOTER_HEIGHT), _display.width(), _FOOTER_HEIGHT, _COLOR_LIGHT_GREY);
-  centerText(text, 1, _COLOR_DARK_GREY, 0, (_display.height()-_FOOTER_HEIGHT), _display.width(), _FOOTER_HEIGHT);
+  centerText(text, 1, _COLOR_OFF_WHITE, 0, (_display.height()-_FOOTER_HEIGHT), _display.width(), _FOOTER_HEIGHT);
 }
 
 void Display::createHomeScreenButtons(char selection, String label1, String label2)
@@ -211,6 +288,21 @@ void Display::createHomeScreenButtons(char selection, String label1, String labe
 
   _display.drawBitmap(posX1+18, _HEADER_HEIGHT + 30+18, songsIcon, 64, 64, _COLOR_OFF_WHITE);
   _display.drawBitmap(posX2+18, _HEADER_HEIGHT + 30+18, settingsIcon, 64, 64, _COLOR_OFF_WHITE);
+}
+
+void Display::createSettingsItem(uint16_t pos, String label, String value, boolean selected)
+{
+  uint16_t y = _HEADER_HEIGHT + 10 + (_ITEM_HEIGHT * pos);
+
+  _display.fillRect(15, y + ((_ITEM_HEIGHT-8)/2), 8, 8, selected ? _COLOR_RED : _COLOR_DARK_GREY);
+
+  if(!selected)
+    _display.fillRect(15+2, y + ((_ITEM_HEIGHT-4)/2), 4, 4, _COLOR_OFF_WHITE);
+
+  centerTextVerticallyAllignLeft(label, 2, (selected) ? _COLOR_RED : _COLOR_DARK_GREY, 35, y, _ITEM_HEIGHT);
+  _display.fillRect(_display.width()-35-80 , y, 80, _ITEM_HEIGHT, _COLOR_OFF_WHITE);
+  centerTextVerticallyAllignRight(value, 2, (selected) ? _COLOR_RED : _COLOR_DARK_GREY, _display.width()-35-80, y, 80, _ITEM_HEIGHT);
+  //_display.fillRect(_display.width()-15-80, y, 80 , _ITEM_HEIGHT, _COLOR_RED);
 }
 
 // ----------------- ADOPTED CODE ----------------- //

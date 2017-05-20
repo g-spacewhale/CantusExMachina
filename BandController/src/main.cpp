@@ -22,13 +22,15 @@
 // ------------------- Variable declarations -------------------
 // Settings
 unsigned char _language = _languageEnglish;
-unsigned char _displayBrightness = 255;
+unsigned char _displayBrightness = 0;
 
 volatile char _encoderCounterTurns = 0;
 volatile unsigned char _encoderCounterClicks = 0;
 
-uint16_t _errorCode = 0;
-uint16_t _currPosition = 0;
+uint16_t _errorCode = _ERROR_NOERROR;
+int _currPosition = 0;
+int _currValue = 0;
+boolean _changingValue = false;
 
 unsigned char _state = _STATE_BOOTUP;       // holds the current state of the statemachine - refere to 'Defining of States'
 unsigned char _previousState = 0;           // holds the previous state of the statemachine
@@ -49,6 +51,8 @@ void encoderResetTurns();
 void encoderResetClicks();
 
 void changeState(unsigned char newState);
+void changeLanguage(unsigned char newLanguage);
+void changeBrightness(unsigned char newBrightness);
 void initState(unsigned char newState);
 void bootUpRoutine();
 
@@ -100,8 +104,7 @@ void loop()
           //changeState(_STATE_SONG_SELECTION);
           error(_ERROR_NOERROR);
         } else {  // Settings was selected
-          //changeState(_STATE_SETTINGS);
-          error(_ERROR_NOERROR);
+          changeState(_STATE_SETTINGS);
         }
       }
       break;
@@ -112,6 +115,84 @@ void loop()
 
     case _STATE_SETTINGS:
 
+      if(!_changingValue)
+      {
+        // check if encoder was rotated
+        if(encoderGetTurns())
+        {
+          // change position
+          _currPosition += encoderGetTurns();
+          _currPosition = _currPosition % _SETTINGS_COUNT; // transform to max selections
+          if(_currPosition < 0) _currPosition = _SETTINGS_COUNT + _currPosition;
+          encoderResetTurns();
+          _display.changeSettingsSelection(_currPosition);
+        }
+
+        // check if encoder was clicked
+        if(encoderGetClicks())
+        {
+          encoderResetClicks();
+          if(_currPosition == _SETTINGS_RETURN)
+          {
+            changeState(_STATE_HOME);
+          } else {
+            _changingValue = true;
+
+            switch (_currPosition)
+            {
+              case _SETTINGS_LANGUAGE:
+                _currValue = _language;
+                break;
+              case _SETTINGS_BRIGHTNESS:
+                _currValue = map(_displayBrightness, 0, 255, 0, 100);
+                Serial.println("_displayBrightness: "+String(_displayBrightness,DEC));
+            }
+
+            _display.changeSettingsValue(_currPosition, _currValue);
+          }
+        }
+      } else {
+        // changing Vallue
+        if(encoderGetTurns())
+        {
+          // change position
+          switch (_currPosition)
+          {
+            case _SETTINGS_LANGUAGE:
+              _currValue += encoderGetTurns();
+              _currValue = _currValue % _LANGUAGE_COUNT;
+              if(_currValue < 0) _currValue = _LANGUAGE_COUNT + _currValue;
+              break;
+            case _SETTINGS_BRIGHTNESS:
+              _currValue += encoderGetTurns()*5;
+              if(_currValue < 5) _currValue = 5;
+              if(_currValue > 100) _currValue = 100;
+          }
+
+          encoderResetTurns();
+          _display.changeSettingsValue(_currPosition, _currValue);
+        }
+
+        // check if encoder was clicked
+        if(encoderGetClicks())
+        {
+          encoderResetClicks();
+          _changingValue = false;
+
+          switch (_currPosition)
+          {
+            case _SETTINGS_LANGUAGE:
+              changeLanguage(_currValue);
+              _display.displaySettings();
+              break;
+            case _SETTINGS_BRIGHTNESS:
+              changeBrightness(map(_currValue, 0, 100, 0, 255));
+              break;
+          }
+          _display.changeSettingsSelection(_currPosition);
+
+        }
+      }
       break;
 
     default:
@@ -125,8 +206,25 @@ void changeState(unsigned char newState)
 {
   _previousState = _state;
   _state = newState;
-  SEND_DEBUG_MESSAGE(0, "Changed State");
+  _currPosition = 0;
+  encoderResetTurns();
+  encoderResetClicks();
   initState(_state);
+  SEND_DEBUG_MESSAGE(0, "Changed State");
+}
+
+void changeLanguage(unsigned char newLanguage)
+{
+  _language = newLanguage;
+  _display.changeLanguage(_language);
+  EEPROM.write(_EEPROM_LANGUAGE, _language);
+}
+
+void changeBrightness(unsigned char newBrightness)
+{
+  _displayBrightness = newBrightness;
+  _display.changeBrightness(_displayBrightness);
+  EEPROM.write(_EEPROM_DISPLAY_BRIGHTNESS, _displayBrightness);
 }
 
 // intitialization of each state after changing the state
@@ -152,7 +250,7 @@ void initState(unsigned char newState)
       break;
 
     case _STATE_SETTINGS:
-
+      _display.displaySettings();
       break;
 
     default:
@@ -169,7 +267,7 @@ void bootUpRoutine()
   // Load Settings from EEPROM
   _language = EEPROM.read(_EEPROM_LANGUAGE);
   SEND_DEBUG_MESSAGE(0, "Language from EEPROM = "+String(_language, DEC));
-  if(_language !=_languageEnglish || _language != _languageGerman)
+  if(_language !=_languageEnglish && _language != _languageGerman)
   {
     _language = _languageEnglish;
     EEPROM.write(_EEPROM_LANGUAGE, _language);
@@ -187,10 +285,11 @@ void bootUpRoutine()
 
   // Init Display
   _display.changeLanguage(_language);
-  _display.setBacklight(_displayBrightness);
+  _display.changeBrightness(_displayBrightness);
   _display.begin();
   _display.displayBootupScreen();
 
+  delay(500);
 
   // Init SD-Card
   _display.changeBootupInfo("Initializing SD-Card");

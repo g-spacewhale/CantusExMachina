@@ -17,6 +17,12 @@
 
 #define _HEADER_HEIGHT 30
 #define _FOOTER_HEIGHT 20
+#define _ITEM_HEIGHT 34   // -> 5 items possible per page + room
+
+#define _SETTINGS_COUNT 3
+#define _SETTINGS_LANGUAGE 0
+#define _SETTINGS_BRIGHTNESS 1
+#define _SETTINGS_RETURN 2
 
 #include <Adafruit_ILI9340.h>
 #include <SD.h>
@@ -29,13 +35,16 @@ class Display
   public:
     Display(int pinCS, int pinDC, int pinRST, int pinBACKLIGHT, unsigned char backlight, int pinSdCS, unsigned char language);
     void begin();
-    void setBacklight(unsigned char backlight);
+    void changeBrightness(unsigned char backlight);
+    void changeLanguage(unsigned char language);
     void displayErrorMessage(char errorCode, String errorMessage);
     void displayBootupScreen();
     void changeBootupInfo(String text);
     void displayHomeScreen();
     void changeHomeScreenSelection(char selection);
-    void changeLanguage(unsigned char language);
+    void displaySettings();
+    void changeSettingsSelection(char selection);
+    void changeSettingsValue(char selection, int valueChange);
 
   private:
     int _pinCS;
@@ -53,10 +62,13 @@ class Display
     uint16_t read16(File & f);
 
     // Helper functions
-    void centerText(String text, char fontSize, uint16_t color, uint16_t x, uint16_t y, uint16_t width, uint16_t height = 0);
+    void centerText(String text, char fontSize, uint16_t color, uint16_t x, uint16_t y, uint16_t width = 0, uint16_t height = 0);
+    void centerTextVerticallyAllignLeft(String text, char fontSize, uint16_t color, uint16_t x, uint16_t y, uint16_t height = 0);
+    void centerTextVerticallyAllignRight(String text, char fontSize, uint16_t color, uint16_t x, uint16_t y, uint16_t width = 0, uint16_t height = 0);
     void createHeader(String title);
     void createFooter(String text);
     void createHomeScreenButtons(char selection, String label1, String label2);
+    void createSettingsItem(uint16_t pos, String label, String value, boolean selected);
     void printTestScreen();
 
     void bmpDraw(String filename, uint16_t x, uint16_t y, Adafruit_ILI9340 _display);
