@@ -60,8 +60,8 @@ void Language::createLanguageMap()
   _translations[_languageGerman]  [6] = "Sprache:";
 
   _languageCode                   [7] = "brightness_label";
-  _translations[_languageEnglish] [7] = "Brightness";
-  _translations[_languageGerman]  [7] = "Helligkeit";
+  _translations[_languageEnglish] [7] = "Brightness:";
+  _translations[_languageGerman]  [7] = "Helligkeit:";
 
 
 }

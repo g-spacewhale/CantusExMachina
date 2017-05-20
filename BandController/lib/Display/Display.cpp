@@ -176,7 +176,7 @@ void Display::changeSettingsValue(char selection, int valueChange)
   uint16_t y = _HEADER_HEIGHT + 10 + (_ITEM_HEIGHT * selection);
   String value = "NA";
 
-  _display.fillRect(_display.width()-35-80 , y, 80, _ITEM_HEIGHT, _COLOR_RED);
+  _display.fillRect(_display.width()-35-80 , y, 90, _ITEM_HEIGHT, _COLOR_RED);
   switch (selection)
   {
     case _SETTINGS_LANGUAGE:
@@ -300,7 +300,7 @@ void Display::createSettingsItem(uint16_t pos, String label, String value, boole
     _display.fillRect(15+2, y + ((_ITEM_HEIGHT-4)/2), 4, 4, _COLOR_OFF_WHITE);
 
   centerTextVerticallyAllignLeft(label, 2, (selected) ? _COLOR_RED : _COLOR_DARK_GREY, 35, y, _ITEM_HEIGHT);
-  _display.fillRect(_display.width()-35-80 , y, 80, _ITEM_HEIGHT, _COLOR_OFF_WHITE);
+  _display.fillRect(_display.width()-35-80 , y, 90, _ITEM_HEIGHT, _COLOR_OFF_WHITE);
   centerTextVerticallyAllignRight(value, 2, (selected) ? _COLOR_RED : _COLOR_DARK_GREY, _display.width()-35-80, y, 80, _ITEM_HEIGHT);
   //_display.fillRect(_display.width()-15-80, y, 80 , _ITEM_HEIGHT, _COLOR_RED);
 }
