@@ -25,6 +25,7 @@
 #include "DataManagement.h"
 #include <Arduino.h>
 #include <SD.h>
+#include <Song.h>
 
 
 DataManagement::DataManagement(int pinCS)
@@ -40,6 +41,23 @@ char DataManagement::begin()
   } else {
     return 0;
   }
+}
+
+char DataManagement::parseSongInfos()
+{
+  Song *temp;
+  for(int i=0; i < _MAX_SONG_COUNT; i++)
+  {
+    temp = new Song("/midi/"+String(i,DEC)+".mid","Song"+String(i,DEC),1,1);
+    _songs[i] = temp;
+  }
+
+  for(int i=0; i < _MAX_SONG_COUNT; i++)
+  {
+    Serial.println(_songs[i]->getInfo());
+  }
+
+  return 0;
 }
 
 /*char DataManagement::getLanguageFile(char language, File &languageFile)

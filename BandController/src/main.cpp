@@ -308,6 +308,7 @@ void bootUpRoutine()
 
   _display.changeBootupInfo("Parse Song Info");
 
+  _dataManager.parseSongInfos();
   //delay(5000);
 
   _display.changeBootupInfo("bootUpRoutine done");

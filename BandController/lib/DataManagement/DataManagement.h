@@ -10,8 +10,9 @@
 #define DataManagement_h
 
 #include <SD.h>
-#include <Language.h>
+#include <Song.h>
 
+#define _MAX_SONG_COUNT 10
 
 class DataManagement
 {
@@ -20,9 +21,10 @@ class DataManagement
     char begin();
     //char getLanguageFile(char language, File &languageFile);
     char loadSongs();
+    char parseSongInfos();
   private:
-    void printDirectory(File dir, int numTabs);
     int _pinCS;
+    Song *_songs[_MAX_SONG_COUNT];
 };
 
 #endif

@@ -30,7 +30,6 @@ String Language::getTranslation(String languageCode, uint8_t language)
 
 void Language::createLanguageMap()
 {
-
   _languageCode                   [0] = "language_code";
   _translations[_languageEnglish] [0] = "ENG";
   _translations[_languageGerman]  [0] = "DEU";
@@ -62,6 +61,4 @@ void Language::createLanguageMap()
   _languageCode                   [7] = "brightness_label";
   _translations[_languageEnglish] [7] = "Brightness:";
   _translations[_languageGerman]  [7] = "Helligkeit:";
-
-
 }
