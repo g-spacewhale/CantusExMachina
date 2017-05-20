@@ -144,8 +144,7 @@ void loop()
                 _currValue = _language;
                 break;
               case _SETTINGS_BRIGHTNESS:
-                _currValue = map(_displayBrightness, 0, 255, 0, 100);
-                Serial.println("_displayBrightness: "+String(_displayBrightness,DEC));
+                _currValue = _displayBrightness;
             }
 
             _display.changeSettingsValue(_currPosition, _currValue);
@@ -186,7 +185,7 @@ void loop()
               _display.displaySettings();
               break;
             case _SETTINGS_BRIGHTNESS:
-              changeBrightness(map(_currValue, 0, 100, 0, 255));
+              changeBrightness(_currValue);
               break;
           }
           _display.changeSettingsSelection(_currPosition);
@@ -275,10 +274,13 @@ void bootUpRoutine()
 
   _displayBrightness = EEPROM.read(_EEPROM_DISPLAY_BRIGHTNESS);
   SEND_DEBUG_MESSAGE(0, "Display Brightness from EEPROM = "+String(_displayBrightness, DEC));
-  if(_displayBrightness < 0 || _displayBrightness > 255)
+  if(_displayBrightness < 5)
   {
-    _displayBrightness = 255;
+    _displayBrightness = 5;
     EEPROM.write(_EEPROM_DISPLAY_BRIGHTNESS, _displayBrightness);
+  } else if(_displayBrightness > 100){
+      _displayBrightness = 100;
+      EEPROM.write(_EEPROM_DISPLAY_BRIGHTNESS, _displayBrightness);
   }
 
   sdError = !_dataManager.begin();

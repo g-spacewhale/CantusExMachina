@@ -94,7 +94,7 @@ Display::Display(int pinCS, int pinDC, int pinRST, int pinBACKLIGHT, unsigned ch
   _language = language;
 
   pinMode(_pinBACKLIGHT, OUTPUT);
-  analogWrite(pinBACKLIGHT, _backlight);
+  changeBrightness(_backlight);
 }
 
 void Display::begin()
@@ -107,7 +107,7 @@ void Display::begin()
 void Display::changeBrightness(unsigned char backlight)
 {
   _backlight = backlight;
-  analogWrite(_pinBACKLIGHT, _backlight);
+  analogWrite(_pinBACKLIGHT, (_backlight*255)/100);
 }
 
 void Display::changeLanguage(unsigned char language)
@@ -167,7 +167,7 @@ void Display::displaySettings()
 void Display::changeSettingsSelection(char selection)
 {
   createSettingsItem(0, _translation.getTranslation("language_label", _language), _translation.getTranslation("language_code", _language), selection == _SETTINGS_LANGUAGE);
-  createSettingsItem(1, _translation.getTranslation("brightness_label", _language), String(map(_backlight, 0, 255, 0, 100))+"%", selection == _SETTINGS_BRIGHTNESS);
+  createSettingsItem(1, _translation.getTranslation("brightness_label", _language), String(_backlight)+"%", selection == _SETTINGS_BRIGHTNESS);
   createSettingsItem(2, _translation.getTranslation("return_label", _language), "", selection == _SETTINGS_RETURN);
 }
 
