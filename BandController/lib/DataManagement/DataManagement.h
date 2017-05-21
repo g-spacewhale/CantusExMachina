@@ -12,7 +12,10 @@
 #include <SD.h>
 #include <Song.h>
 
+#define _RETURNVAL_MIDI_DIR_NOT_FOUND -1
+
 #define _MAX_SONG_COUNT 10
+
 
 class DataManagement
 {
@@ -22,9 +25,13 @@ class DataManagement
     //char getLanguageFile(char language, File &languageFile);
     char loadSongs();
     char parseSongInfos();
+    Song getSong(int pos);
+    uint16_t getSongCount();
+
   private:
     int _pinCS;
     Song *_songs[_MAX_SONG_COUNT];
+    uint16_t _songCount;
 };
 
 #endif

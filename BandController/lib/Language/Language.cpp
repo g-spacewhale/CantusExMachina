@@ -51,8 +51,8 @@ void Language::createLanguageMap()
   _translations[_languageGerman]  [4] = "Drehen: Auswaehlen | Klicken: Bestaetigen";
 
   _languageCode                   [5] = "return_label";
-  _translations[_languageEnglish] [5] = "< Return";
-  _translations[_languageGerman]  [5] = "< Zurueck";
+  _translations[_languageEnglish] [5] = "Return";
+  _translations[_languageGerman]  [5] = "Zurueck";
 
   _languageCode                   [6] = "language_label";
   _translations[_languageEnglish] [6] = "Language:";

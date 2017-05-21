@@ -35,8 +35,8 @@ boolean _changingValue = false;
 unsigned char _state = _STATE_BOOTUP;       // holds the current state of the statemachine - refere to 'Defining of States'
 unsigned char _previousState = 0;           // holds the previous state of the statemachine
 
-Display _display = Display(_displayPinCS, _displayPinDC, _displayPinRST, _displayPinBACKLIGHT, _displayBrightness, _sdPinCS, _languageEnglish);
 DataManagement _dataManager = DataManagement(_sdPinCS);
+Display _display = Display(_displayPinCS, _displayPinDC, _displayPinRST, _displayPinBACKLIGHT, _displayBrightness, _languageEnglish, &_dataManager);
 Language _translation = Language();
 
 // ------------------- Forward declarations --------------------
@@ -101,8 +101,7 @@ void loop()
         encoderResetClicks();
         if(_currPosition == 0) // Songs was selected
         {
-          //changeState(_STATE_SONG_SELECTION);
-          error(_ERROR_NOERROR);
+          changeState(_STATE_SONG_SELECTION);
         } else {  // Settings was selected
           changeState(_STATE_SETTINGS);
         }
@@ -110,7 +109,37 @@ void loop()
       break;
 
     case _STATE_SONG_SELECTION:
+      if(encoderGetTurns())
+      {
+        // change position
+        _currPosition += encoderGetTurns();
+        _currPosition = _currPosition % (_dataManager.getSongCount()+1);
+        if(_currPosition < 0) _currPosition = (_dataManager.getSongCount()+1) + _currPosition;
+        encoderResetTurns();
+        _display.changeSongsSelection(_currPosition);
+      }
 
+      // check if encoder was clicked
+      if(encoderGetClicks())
+      {
+        encoderResetClicks();
+        if(_currPosition == int(_dataManager.getSongCount())) // Return was selected
+        {
+          changeState(_STATE_HOME);
+        } else {  // A song was selecte
+          // play or convert song
+          Song temp = _dataManager.getSong(_currPosition);
+
+          if(temp.getFormat() == 1)
+          {
+            // Play Song
+            
+          } else {
+            // convert song
+            error(_ERROR_CONVERT);
+          }
+        }
+      }
       break;
 
     case _STATE_SETTINGS:
@@ -245,7 +274,7 @@ void initState(unsigned char newState)
       break;
 
     case _STATE_SONG_SELECTION:
-
+      _display.displaySongs();
       break;
 
     case _STATE_SETTINGS:
@@ -308,7 +337,15 @@ void bootUpRoutine()
 
   _display.changeBootupInfo("Parse Song Info");
 
-  _dataManager.parseSongInfos();
+  switch (_dataManager.parseSongInfos())
+  {
+    case _ERROR_MIDI_DIR_NOT_FOUND:
+      error(_ERROR_MIDI_DIR_NOT_FOUND);
+      break;
+    default:  // everything okay
+      break;
+  }
+
   //delay(5000);
 
   _display.changeBootupInfo("bootUpRoutine done");
