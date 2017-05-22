@@ -117,8 +117,6 @@ const unsigned char returnIcon [] PROGMEM = {
 };
 
 
-
-
 Display::Display(int pinCS, int pinDC, int pinRST, int pinBACKLIGHT, unsigned char backlight, unsigned char language, DataManagement *dataManager):_display(pinCS, pinDC, pinRST)
 {
   _pinCS = pinCS;
@@ -259,16 +257,25 @@ void Display::changeSongsSelection(char selection)
     } else {
       temp = _dataManager->getSong(selection);
       centerTextVerticallyAllignLeft(temp.getTitle(), 3, _COLOR_RED, marginX, _HEADER_HEIGHT+marginY, _ITEM_HEIGHT);
-      centerTextVerticallyAllignLeft("Size: "+String(temp.getLength(),DEC), 2, _COLOR_LIGHT_GREY, marginX, _HEADER_HEIGHT+marginY+_ITEM_HEIGHT, _ITEM_SMALL_HEIGHT);
+      centerTextVerticallyAllignLeft("Length: "+convertTimeToString(temp.getLength()), 2, _COLOR_LIGHT_GREY, marginX, _HEADER_HEIGHT+marginY+_ITEM_HEIGHT, _ITEM_SMALL_HEIGHT);
       centerTextVerticallyAllignLeft("Keys: 8", 2, _COLOR_LIGHT_GREY, marginX, _HEADER_HEIGHT+marginY+_ITEM_HEIGHT+_ITEM_SMALL_HEIGHT, _ITEM_SMALL_HEIGHT);
       centerTextVerticallyAllignLeft("Drums: 8", 2, _COLOR_LIGHT_GREY, marginX, _HEADER_HEIGHT+marginY+_ITEM_HEIGHT+_ITEM_SMALL_HEIGHT*2, _ITEM_SMALL_HEIGHT);
 
-
-
-      _display.fillRect((_display.width()-160)/2, _display.height()-_FOOTER_HEIGHT-marginY-_ITEM_HEIGHT, 160, _ITEM_HEIGHT, _COLOR_RED);
-      centerText((temp.getFormat() == 0) ? "Play" : "Convert", 2, _COLOR_OFF_WHITE, (_display.width()-160)/2, _display.height()-_FOOTER_HEIGHT-marginY-_ITEM_HEIGHT, 160,_ITEM_HEIGHT);
-
+      if(temp.getFormat() != 0)
+      {
+        _display.fillRect((_display.width()-200)/2, _display.height()-_FOOTER_HEIGHT-marginY-_ITEM_HEIGHT, 200, _ITEM_HEIGHT, _COLOR_LIGHT_GREY);
+        centerText("Needs Convertion", 2, _COLOR_OFF_WHITE, (_display.width()-200)/2, _display.height()-_FOOTER_HEIGHT-marginY-_ITEM_HEIGHT, 200,_ITEM_HEIGHT);
+      } else {
+        _display.fillRect((_display.width()-100)/2, _display.height()-_FOOTER_HEIGHT-marginY-_ITEM_HEIGHT, 100, _ITEM_HEIGHT, _COLOR_RED);
+        centerText("Play", 2, _COLOR_OFF_WHITE, (_display.width()-100)/2, _display.height()-_FOOTER_HEIGHT-marginY-_ITEM_HEIGHT, 100,_ITEM_HEIGHT);
+      }
     }
+}
+
+void Display::displayPlayScreen(char selection)
+{
+  _display.fillScreen(_COLOR_RED);
+  centerText("Playing: "+_dataManager->getSong(selection).getTitle(), 1, _COLOR_OFF_WHITE, 0,0,_display.width(),_display.height());
 }
 
 // Helper functions
@@ -388,6 +395,11 @@ void Display::createSettingsItem(uint16_t pos, String label, String value, boole
   //_display.fillRect(_display.width()-15-80, y, 80 , _ITEM_HEIGHT, _COLOR_RED);
 }
 
+String Display::convertTimeToString(uint32_t us)
+{
+  return String((us / 1000) / 60,DEC) + ":" + String((us / 1000) % 60 ,DEC) + " min";
+}
+
 // ----------------- ADOPTED CODE ----------------- //
 // The follwoing functions where adopted (and slightly modified)
 // from Adafruits example code for the Adafruit_ILI9340 and can be found
@@ -410,7 +422,6 @@ void Display::createSettingsItem(uint16_t pos, String label, String value, boole
 
 void Display::bmpDraw(String filename, uint16_t x, uint16_t y, Adafruit_ILI9340 _display)
 {
-
   File     bmpFile;
   int      bmpWidth, bmpHeight;         // W+H in pixels
   uint8_t  bmpDepth;                    // Bit depth (currently must be 24)

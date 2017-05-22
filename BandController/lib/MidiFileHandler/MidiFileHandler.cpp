@@ -36,10 +36,14 @@ MidiFileHandler::MidiFileHandler()
   _mightyStatusNibble    = 0;
   _punyStatusNibble      = 0;
   _channelPrefix         = 0;
-
 }
 
-void MidiFileHandler::setMidiFile(File *midiFile) {_midiFile = midiFile;}
+void MidiFileHandler::setMidiFile(File *midiFile)
+{
+  // MIDI infos
+  _counter = 0;
+  _midiFile = midiFile;
+}
 
 String MidiFileHandler::getTitle() {return _title;}
 uint16_t MidiFileHandler::getFormat() {return _format;}
@@ -48,12 +52,12 @@ uint16_t MidiFileHandler::getTpqn() {return _tpqn;}
 uint32_t MidiFileHandler::getUsPerMidiQn() {return _usPerMidiQn;}
 uint32_t MidiFileHandler::getTrackLen() {return _trackLen;}
 uint32_t MidiFileHandler::getTotalTime() {return _totalTime;}
+void MidiFileHandler::setPlaying(boolean playing){_isPlaying = playing;}
 
 int8_t MidiFileHandler::getHeaderInfo()
 {
-  _counter = 0;
-
 	//initialize next byte
+
 	_nextByte = _midiFile->read();
 
 	// Header Title (check header title has to be MThd)
@@ -84,25 +88,41 @@ int8_t MidiFileHandler::getHeaderInfo()
 	return 0;
 }
 
-
 int8_t MidiFileHandler::getTrackInfo()
 {
-  _trackLen = 0;
-
-	//check for correct track header, has to be MTrk
-	if(!(getNextByte()  == 'M' && getNextByte()  == 'T' && getNextByte()  == 'r' && getNextByte()  == 'k'))
-    return _MIDI_FILE_HADLER_ERROR_TRACK_TITLE;
-
-	_trackLen = getNextNBytesAsInt(4);
+  startSong();
 
   _isPlaying = false; // don't play notes just parse
 
   while(_counter < _trackLen)
 	{
-    getDeltaTimeAsMillis(); // just to get rid of the bytes
-    getNextEvent();
+    playSong();
   }
   return 0;
+}
+
+int8_t MidiFileHandler::startSong()
+{
+  _trackLen = 0;
+	//check for correct track header, has to be MTrk
+	if(!(getNextByte()  == 'M' && getNextByte()  == 'T' && getNextByte()  == 'r' && getNextByte()  == 'k'))
+    return _MIDI_FILE_HADLER_ERROR_TRACK_TITLE;
+
+	_trackLen = getNextNBytesAsInt(4);
+}
+
+int8_t MidiFileHandler::playSong()
+{
+  if(_isPlaying && _counter >= _trackLen)
+    return _MIDI_END_OF_TRACK;
+
+  if(_isPlaying)
+  {
+    delay(getDeltaTimeAsMillis());
+  } else {
+    getDeltaTimeAsMillis(); // just to get rid of the bytes
+  }
+  return getNextEvent();
 }
 
 int8_t MidiFileHandler::getNextEvent()
@@ -176,8 +196,7 @@ int8_t MidiFileHandler::getNextEvent()
 
     case _MIDI_MESSAGE_SYSTEM_MESSAGE:
       //system common messages
-      getSystemMessage(_punyStatusNibble);
-      break;
+      return getSystemMessage(_punyStatusNibble);
 
     default:
       Serial.println(_currentByte);
@@ -229,8 +248,7 @@ int8_t MidiFileHandler::getSystemMessage(byte systemMessageCode)
 
     // FILE META EVENTS
     case _MIDI_FILE_META_EVENT:
-      getMetaEvent(getNextByte());
-      break;
+      return getMetaEvent(getNextByte());
 
    default:
      Serial.println(_currentByte);
@@ -280,8 +298,7 @@ int8_t MidiFileHandler::getMetaEvent(byte metaEventCode)
       break;
 
     case _MIDIE_FILE_META_EVENT_END_OF_TRACK:
-      doEndOfTrack();
-      break;
+      return doEndOfTrack();
 
     case _MIDIE_FILE_META_EVENT_SET_TEMPO:
       setTempo();
@@ -437,6 +454,9 @@ void MidiFileHandler::setSequenceNumber()
   int32_t sequencerNumber;
   getNextByte(); //this seems to be a 02 always = len
   sequencerNumber = getNextNBytesAsInt(2);
+
+  sequencerNumber = sequencerNumber;  // just so no warning appear
+
 }
 
 void MidiFileHandler::setTextEvent()
@@ -572,11 +592,12 @@ void MidiFileHandler::setChannelPrefix()
   _channelPrefix = getNextByte();
 }
 
-void MidiFileHandler::doEndOfTrack()
+int8_t MidiFileHandler::doEndOfTrack()
 {
   //FF 2F 00 - End of Track
   //getNextByte(); // next one is always 00 but next byte would be EOF
   Serial.println("end of track reached");
+  return _MIDI_END_OF_TRACK;
 }
 
 void MidiFileHandler::setTempo()
@@ -600,6 +621,12 @@ void MidiFileHandler::setSMPTEOffset()
   se = getNextByte();
   fr = getNextByte();
   ff = getNextByte();
+
+  hr = hr;
+  mn = mn;
+  se = se;
+  fr = fr;
+  ff = ff;
 }
 
 void MidiFileHandler::setTimeSignature()
@@ -614,6 +641,12 @@ void MidiFileHandler::setTimeSignature()
   denominator = getNextByte();
   clocks_per_click = getNextByte();
   notated_32nd_per_qn = getNextByte();
+
+  numerator = numerator;
+  denominator = denominator;
+  clocks_per_click = clocks_per_click;
+  notated_32nd_per_qn = notated_32nd_per_qn;
+
 }
 
 void MidiFileHandler::setKeySignature()
@@ -624,6 +657,8 @@ void MidiFileHandler::setKeySignature()
   sf = getNextByte();
   mi = getNextByte();
 
+  sf = sf;
+  mi = mi;
 }
 
 void MidiFileHandler::doSequencerSpecificEvent()

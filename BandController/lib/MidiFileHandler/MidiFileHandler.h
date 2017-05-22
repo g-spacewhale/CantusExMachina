@@ -18,6 +18,7 @@
 #define _MIDI_FILE_HANDLER_ERROR_HEADER_TRACKNUM -4
 #define _MIDI_FILE_HANDLER_ERROR_HEADER_SMPTE -5
 #define _MIDI_FILE_HADLER_ERROR_TRACK_TITLE -6
+#define _MIDI_END_OF_TRACK -100
 
 // Channel Voice Messages
 #define _MIDI_MESSAGE_NOTE_OFF                      0x08    // Note Off
@@ -87,8 +88,12 @@ class MidiFileHandler
     uint32_t  getTrackLen();
     uint32_t  getTotalTime();
 
+    void setPlaying(boolean playing = true);
+
     int8_t    getHeaderInfo();
     int8_t    getTrackInfo();
+    int8_t    startSong();
+    int8_t    playSong();
     int8_t    getNextEvent();
 
   private:
@@ -133,7 +138,7 @@ class MidiFileHandler
     void setEventMarker();
     void setCuePoint();
     void setChannelPrefix();
-    void doEndOfTrack();
+    int8_t doEndOfTrack();
     void setTempo();
     void setSMPTEOffset();
     void setTimeSignature();

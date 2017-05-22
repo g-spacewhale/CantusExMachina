@@ -29,6 +29,7 @@
 #define _STATE_HOME 2
 #define _STATE_SONG_SELECTION 3
 #define _STATE_SETTINGS 4
+#define _STATE_PLAY_SONG 5
 
 /*// ------------------ Defining of Pin mapping ------------------
 // defines the Data-Pins for the midi connection

@@ -46,10 +46,7 @@ char DataManagement::begin()
 
 char DataManagement::parseSongInfos()
 {
-  MidiFileHandler *midiFileHandler;
-
   File midiDir;
-  File entry;
   Song *temp;
   boolean allFiles = true;
   uint16_t countMissing = 0;
@@ -66,27 +63,27 @@ char DataManagement::parseSongInfos()
 
   while(true)
   {
-    entry = midiDir.openNextFile();
+    _midiFile = midiDir.openNextFile();
 
-    if(! entry) break; // no more files
+    if(! _midiFile) break; // no more files
 
-    if(!entry.isDirectory())   // ignore directories
+    if(!_midiFile.isDirectory())   // ignore directories
     {
       if(_songCount < _MAX_SONG_COUNT) // only parse until _MAX_SONG_COUNT
       {
-        if(entry.name()[0] != '_' && String(entry.name()).indexOf(".MID") >= 0 ) // only read in propper midi files
+        if(_midiFile.name()[0] != '_' && String(_midiFile.name()).indexOf(".MID") >= 0 ) // only read in propper midi files
         {
-          Serial.println("Song #"+String(_songCount,DEC)+": "+String(entry.name()) + " : " + String(entry.size(), DEC));
+          Serial.println("Song #"+String(_songCount,DEC)+": "+String(_midiFile.name()) + " : " + String(_midiFile.size(), DEC));
 
           temp = new Song();
-          midiFileHandler = new MidiFileHandler();
+          _midiFileHandler = new MidiFileHandler();
 
-          temp->setPath("/midi/"+String(entry.name()));
+          temp->setPath("/midi/"+String(_midiFile.name()));
           temp->setTitle("Song #"+String(_songCount,DEC));
 
           // parse song info
-          midiFileHandler->setMidiFile(&entry);
-          error = midiFileHandler->getHeaderInfo();
+          _midiFileHandler->setMidiFile(&_midiFile);
+          error = _midiFileHandler->getHeaderInfo();
 
           switch(error)
           {
@@ -109,16 +106,16 @@ char DataManagement::parseSongInfos()
               Serial.println("Header is okay");
 
               // store data from header
-              temp->setFormat(midiFileHandler->getFormat());
-              temp->setNtrks(midiFileHandler->getNtrks());
-              temp->setTpqn(midiFileHandler->getTpqn());
-              temp->setUsPerMidiQn(midiFileHandler->getUsPerMidiQn());
+              temp->setFormat(_midiFileHandler->getFormat());
+              temp->setNtrks(_midiFileHandler->getNtrks());
+              temp->setTpqn(_midiFileHandler->getTpqn());
+              temp->setUsPerMidiQn(_midiFileHandler->getUsPerMidiQn());
           }
 
-          if(midiFileHandler->getFormat() == 0 && error == 0) // only read track when midi format 0 and no errors
+          if(_midiFileHandler->getFormat() == 0 && error == 0) // only read track when midi format 0 and no errors
           {
 
-            error = midiFileHandler->getTrackInfo();
+            error = _midiFileHandler->getTrackInfo();
 
             switch (error)
             {
@@ -129,8 +126,8 @@ char DataManagement::parseSongInfos()
                 Serial.println("Track Info is okay");
 
                 // store data from Song Info
-                temp->setTitle(midiFileHandler->getTitle());
-                temp->setLength(midiFileHandler->getTotalTime()/1000);
+                temp->setTitle(_midiFileHandler->getTitle());
+                temp->setLength(_midiFileHandler->getTotalTime());
                 // get more info
             }
           }
@@ -140,20 +137,20 @@ char DataManagement::parseSongInfos()
             _songs[_songCount] = temp;
             _songCount++;
           } else {
-            Serial.println("This file is corrupt: "+String(entry.name()));
+            Serial.println("This file is corrupt: "+String(_midiFile.name()));
           }
         }
 
       } else {
-        if(entry.name()[0] != '_' && String(entry.name()).indexOf(".MID") >= 0 )
+        if(_midiFile.name()[0] != '_' && String(_midiFile.name()).indexOf(".MID") >= 0 )
         {
           allFiles = false;
           countMissing++;
-          Serial.println("NOT STORED: "+String(entry.name()) + " : " + String(entry.size(), DEC));
+          Serial.println("NOT STORED: "+String(_midiFile.name()) + " : " + String(_midiFile.size(), DEC));
         }
       }
     }
-    entry.close();
+    _midiFile.close();
   }
 
   Serial.println("SongCount: "+String(_songCount,DEC));
@@ -173,6 +170,35 @@ char DataManagement::parseSongInfos()
   Serial.println("");
 
   return 0;
+}
+
+char DataManagement::startSong(int16_t selection)
+{
+  _midiFile = SD.open(_songs[selection]->getPath());
+  if(!_midiFile)
+  {
+    return _RETURNVAL_MIDI_FILE_NOT_FOUND;
+  }
+
+  _midiFileHandler = new MidiFileHandler();
+
+  _midiFileHandler->setMidiFile(&_midiFile);
+  _midiFileHandler->setPlaying(true);
+  _midiFileHandler->getHeaderInfo(); // to move to position
+  _midiFileHandler->startSong();
+
+  return 0;
+}
+
+char DataManagement::playSong()
+{
+  return _midiFileHandler->playSong();
+}
+
+void DataManagement::stopSong()
+{
+  _midiFileHandler->setPlaying(false);
+  _midiFile.close();
 }
 
 Song DataManagement::getSong(int pos)

@@ -49,6 +49,7 @@ class Display
     void changeSettingsValue(char selection, int valueChange);
     void displaySongs();
     void changeSongsSelection(char selection);
+    void displayPlayScreen(char selection);
 
   private:
     int _pinCS;
@@ -73,6 +74,7 @@ class Display
     void createFooter(String text);
     void createHomeScreenButtons(char selection, String label1, String label2);
     void createSettingsItem(uint16_t pos, String label, String value, boolean selected);
+    String convertTimeToString(uint32_t us);
     void printTestScreen();
 
     void bmpDraw(String filename, uint16_t x, uint16_t y, Adafruit_ILI9340 _display);

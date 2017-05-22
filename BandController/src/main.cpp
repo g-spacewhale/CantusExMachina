@@ -16,6 +16,7 @@
 #include <Defines.h>        // holds all Defines
 #include <ErrorCodes.h>     // Definitions of ErrorCodes
 #include <DataManagement.h> // custom class to manage data on sd card
+#include <MidiFileHandler.h>
 #include <Language.h>       //
 #include <Display.h>        // custom Display class to manage the tft Display
 
@@ -27,9 +28,12 @@ unsigned char _displayBrightness = 0;
 volatile char _encoderCounterTurns = 0;
 volatile unsigned char _encoderCounterClicks = 0;
 
+int32_t _time = 0;
+
 uint16_t _errorCode = _ERROR_NOERROR;
-int _currPosition = 0;
-int _currValue = 0;
+int16_t _currPosition = 0;
+int16_t _currValue = 0;
+int16_t _selection = 0;
 boolean _changingValue = false;
 
 unsigned char _state = _STATE_BOOTUP;       // holds the current state of the statemachine - refere to 'Defining of States'
@@ -138,11 +142,11 @@ void loop()
 
           if(temp.getFormat() == 0)
           {
-            // Play Song
-
+            _selection = _currPosition;
+            changeState(_STATE_PLAY_SONG);
           } else {
             // convert song
-            error(_ERROR_CONVERT);
+            // error(_ERROR_CONVERT);
           }
         }
       }
@@ -224,8 +228,15 @@ void loop()
               break;
           }
           _display.changeSettingsSelection(_currPosition);
-
         }
+      }
+      break;
+
+    case _STATE_PLAY_SONG:
+      if(_dataManager.playSong() == _MIDI_END_OF_TRACK)
+      {
+        Serial.println(String( ((millis()-_time)/1000) ,DEC));
+        changeState(_STATE_SONG_SELECTION);
       }
       break;
 
@@ -280,11 +291,18 @@ void initState(unsigned char newState)
       break;
 
     case _STATE_SONG_SELECTION:
+      _currPosition = _selection;
       _display.displaySongs();
       break;
 
     case _STATE_SETTINGS:
       _display.displaySettings();
+      break;
+
+    case _STATE_PLAY_SONG:
+      _display.displayPlayScreen(_selection);
+      _dataManager.startSong(_selection);
+      _time = millis();
       break;
 
     default:
