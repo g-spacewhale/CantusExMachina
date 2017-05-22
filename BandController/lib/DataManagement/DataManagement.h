@@ -11,6 +11,7 @@
 
 #include <SD.h>
 #include <Song.h>
+#include <MidiFileHandler.h>
 
 #define _RETURNVAL_MIDI_DIR_NOT_FOUND -1
 

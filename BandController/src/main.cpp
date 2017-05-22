@@ -58,9 +58,15 @@ void bootUpRoutine();
 
 void setup()
 {
+    Serial.begin(9600);
+    Serial.println("");
+    Serial.println("");
+    Serial.println("");
+    Serial.println("----------------------- BandController Start -----------------------");
+    Serial.println("");
+
     // setup serial for debugg messages
     #ifdef _DEBUGING
-      Serial.begin(9600);
       Serial.println("Debug Messages activated:");
     #endif
 
@@ -130,10 +136,10 @@ void loop()
           // play or convert song
           Song temp = _dataManager.getSong(_currPosition);
 
-          if(temp.getFormat() == 1)
+          if(temp.getFormat() == 0)
           {
             // Play Song
-            
+
           } else {
             // convert song
             error(_ERROR_CONVERT);

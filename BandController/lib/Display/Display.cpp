@@ -266,7 +266,7 @@ void Display::changeSongsSelection(char selection)
 
 
       _display.fillRect((_display.width()-160)/2, _display.height()-_FOOTER_HEIGHT-marginY-_ITEM_HEIGHT, 160, _ITEM_HEIGHT, _COLOR_RED);
-      centerText((temp.getFormat() == 1) ? "Play" : "Convert", 2, _COLOR_OFF_WHITE, (_display.width()-160)/2, _display.height()-_FOOTER_HEIGHT-marginY-_ITEM_HEIGHT, 160,_ITEM_HEIGHT);
+      centerText((temp.getFormat() == 0) ? "Play" : "Convert", 2, _COLOR_OFF_WHITE, (_display.width()-160)/2, _display.height()-_FOOTER_HEIGHT-marginY-_ITEM_HEIGHT, 160,_ITEM_HEIGHT);
 
     }
 }

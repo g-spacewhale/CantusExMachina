@@ -50,8 +50,6 @@ class Display
     void displaySongs();
     void changeSongsSelection(char selection);
 
-
-
   private:
     int _pinCS;
     int _pinDC;

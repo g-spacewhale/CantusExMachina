@@ -46,19 +46,20 @@ char DataManagement::begin()
 
 char DataManagement::parseSongInfos()
 {
+  MidiFileHandler *midiFileHandler;
 
   File midiDir;
   File entry;
   Song *temp;
   boolean allFiles = true;
   uint16_t countMissing = 0;
+  int error = 0;
 
   midiDir = SD.open("/midi/");
   if(!midiDir)
   {
     return _RETURNVAL_MIDI_DIR_NOT_FOUND;
   }
-
 
   Serial.println("");
   Serial.println("---------------- parseSongInfos() ----------------");
@@ -78,15 +79,69 @@ char DataManagement::parseSongInfos()
           Serial.println("Song #"+String(_songCount,DEC)+": "+String(entry.name()) + " : " + String(entry.size(), DEC));
 
           temp = new Song();
+          midiFileHandler = new MidiFileHandler();
 
           temp->setPath("/midi/"+String(entry.name()));
-          temp->setTitle(String(entry.name()));
-          temp->setFormat((_songCount%2) ? 1 : 0);
-          temp->setLength(entry.size());
+          temp->setTitle("Song #"+String(_songCount,DEC));
 
-          _songs[_songCount] = temp;
+          // parse song info
+          midiFileHandler->setMidiFile(&entry);
+          error = midiFileHandler->getHeaderInfo();
 
-          _songCount++;
+          switch(error)
+          {
+            case _MIDI_FILE_HANDLER_ERROR_HEADER_TITLE:
+              Serial.println("incorrect header title");
+              break;
+            case _MIDI_FILE_HANDLER_ERROR_HEADER_LENGTH:
+              Serial.println("incorrect header length");
+              break;
+            case _MIDI_FILE_HANDLER_ERROR_HEADER_FORMAT:
+              Serial.println("incorrect MIDI Format");
+              break;
+            case _MIDI_FILE_HANDLER_ERROR_HEADER_TRACKNUM:
+              Serial.println("corrupted midi file, incorrect track number");
+              break;
+            case _MIDI_FILE_HANDLER_ERROR_HEADER_SMPTE:
+              Serial.println("currently, smpte based clocks are not supported.");
+              break;
+            default:
+              Serial.println("Header is okay");
+
+              // store data from header
+              temp->setFormat(midiFileHandler->getFormat());
+              temp->setNtrks(midiFileHandler->getNtrks());
+              temp->setTpqn(midiFileHandler->getTpqn());
+              temp->setUsPerMidiQn(midiFileHandler->getUsPerMidiQn());
+          }
+
+          if(midiFileHandler->getFormat() == 0 && error == 0) // only read track when midi format 0 and no errors
+          {
+
+            error = midiFileHandler->getTrackInfo();
+
+            switch (error)
+            {
+              case _MIDI_FILE_HADLER_ERROR_TRACK_TITLE:
+                Serial.println("incorrect track title");
+                break;
+              default:
+                Serial.println("Track Info is okay");
+
+                // store data from Song Info
+                temp->setTitle(midiFileHandler->getTitle());
+                temp->setLength(midiFileHandler->getTotalTime()/1000);
+                // get more info
+            }
+          }
+
+          if(!error)
+          {
+            _songs[_songCount] = temp;
+            _songCount++;
+          } else {
+            Serial.println("This file is corrupt: "+String(entry.name()));
+          }
         }
 
       } else {
@@ -119,7 +174,6 @@ char DataManagement::parseSongInfos()
 
   return 0;
 }
-
 
 Song DataManagement::getSong(int pos)
 {

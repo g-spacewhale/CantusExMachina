@@ -27,45 +27,25 @@ Song::Song()
   _length = 0;
 }
 
-void Song::setPath(String path)
-{
-  _path = path;
-}
+// Setter
+void      Song::setPath(String path) {_path = path;}
+void      Song::setTitle(String title) {_title = title;}
+void      Song::setLength(uint16_t length) {_length = length;}
 
-String Song::getPath()
-{
-  return _path;
-}
+void      Song::setFormat(uint16_t format) {_format = format;}
+void      Song::setNtrks(uint16_t ntrks) {_ntrks = ntrks;}
+void      Song::setTpqn(uint16_t tpqn) {_tpqn = tpqn;}
+void      Song::setUsPerMidiQn(uint32_t usPerMidiQn) {_usPerMidiQn = usPerMidiQn;}
 
-void Song::setTitle(String title)
-{
-  _title = title;
-}
+// Getter
+String    Song::getPath() {return _path;}
+String    Song::getTitle() {return _title;}
+uint16_t  Song::getLength() {return _length;}
 
-String Song::getTitle()
-{
-  return _title;
-}
-
-void Song::setFormat(unsigned char format)
-{
-  _format = format;
-}
-
-unsigned char Song::getFormat()
-{
-  return _format;
-}
-
-void Song::setLength(uint16_t length)
-{
-  _length = length;
-}
-
-uint16_t Song::getLength()
-{
-  return _length;
-}
+uint16_t  Song::getFormat() {return _format;}
+uint16_t  Song::getNtrks(){return _ntrks;}
+uint16_t  Song::getTpqn(){return _tpqn;}
+uint32_t  Song::getUsPerMidiQn(){return _usPerMidiQn;}
 
 String Song::getInfo()
 {
