@@ -145,7 +145,7 @@ int8_t MidiFileHandler::getNextEvent()
       // nnnn - MIDI channel (puny_nibble)
       // 0kkkkkkk - the note
       // 0vvvvvvv - the velocity
-      doNoteOff(_punyStatusNibble, getNextNBytesAsInt(1,true), getNextNBytesAsInt(1,true));
+      doNoteOff();
       break;
 
     case _MIDI_MESSAGE_NOTE_ON:
@@ -153,7 +153,7 @@ int8_t MidiFileHandler::getNextEvent()
       // nnnn - MIDI channel (puny_nibble)
       // 0kkkkkkk - the note
       // 0vvvvvvv - the velocity
-      doNoteOn(_punyStatusNibble, getNextNBytesAsInt(1,true), getNextNBytesAsInt(1,true));
+      doNoteOn();
       break;
 
     case _MIDI_MESSAGE_KEY_AFTERTOUCH:
@@ -329,22 +329,38 @@ int8_t MidiFileHandler::getMetaEvent(byte metaEventCode)
 }
 
 
-void MidiFileHandler::doNoteOff(uint8_t channel, uint8_t note, uint16_t velocity)
+void MidiFileHandler::doNoteOff()
 {
-  //Serial.println("Note (#"+String(note, DEC)+") off [Channel: "+String(channel, DEC)+ " | Velocity: "+String(velocity, DEC)+"]");
+  //uint8_t channel = _punyStatusNibble;
+  //int8_t note = getNextNBytesAsInt(1,true);
+  //int8_t velocity = getNextNBytesAsInt(1,true);
+
+  byte note = getNextByte();
+  byte velocity = getNextByte();
+
   if(_isPlaying)
   {
+    //Serial.println("Note Off ("+String(_currentStatusByte, HEX)+") [Note: "+String(note, HEX)+ " | Velocity: "+String(velocity, HEX)+"]");
+
     Serial1.write(_currentStatusByte);
     Serial1.write(note);
     Serial1.write(velocity);
   }
 }
 
-void MidiFileHandler::doNoteOn(uint8_t channel, uint8_t note, uint16_t velocity)
+void MidiFileHandler::doNoteOn()
 {
-  //Serial.println("Note (#"+String(note, DEC)+") on [Channel: "+String(channel, DEC)+ " | Velocity: "+String(velocity, DEC)+"]");
+  //uint8_t channel = _punyStatusNibble;
+  //int8_t note = getNextNBytesAsInt(1,true);
+  //int8_t velocity = getNextNBytesAsInt(1,true);
+
+  byte note = getNextByte();
+  byte velocity = getNextByte();
+
   if(_isPlaying)
   {
+    //Serial.println("Note On ("+String(_currentStatusByte, HEX)+") [Note: "+String(note, HEX)+ " | Velocity: "+String(velocity, HEX)+"]");
+
     Serial1.write(_currentStatusByte);
     Serial1.write(note);
     Serial1.write(velocity);

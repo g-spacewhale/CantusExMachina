@@ -222,13 +222,13 @@ void Display::changeSettingsValue(char selection, int valueChange)
   centerTextVerticallyAllignRight(value, 2, _COLOR_OFF_WHITE, _display.width()-35-80, y, 80, _ITEM_HEIGHT);
 }
 
-void Display::displaySongs()
+void Display::displaySongs(char selection)
 {
   createHeader(_translation.getTranslation("songs_title", _language));
   _display.fillRect(0, _HEADER_HEIGHT, _display.width(), _display.height() - _HEADER_HEIGHT - _FOOTER_HEIGHT, _COLOR_OFF_WHITE);
   createFooter(_translation.getTranslation("footer", _language));
 
-  changeSongsSelection(0); // 1 because 0 is return
+  changeSongsSelection(selection); // 1 because 0 is return
 }
 
 void Display::changeSongsSelection(char selection)
@@ -264,7 +264,7 @@ void Display::changeSongsSelection(char selection)
       if(temp.getFormat() != 0)
       {
         _display.fillRect((_display.width()-200)/2, _display.height()-_FOOTER_HEIGHT-marginY-_ITEM_HEIGHT, 200, _ITEM_HEIGHT, _COLOR_LIGHT_GREY);
-        centerText("Needs Convertion", 2, _COLOR_OFF_WHITE, (_display.width()-200)/2, _display.height()-_FOOTER_HEIGHT-marginY-_ITEM_HEIGHT, 200,_ITEM_HEIGHT);
+        centerText("Not Supported", 2, _COLOR_OFF_WHITE, (_display.width()-200)/2, _display.height()-_FOOTER_HEIGHT-marginY-_ITEM_HEIGHT, 200,_ITEM_HEIGHT);
       } else {
         _display.fillRect((_display.width()-100)/2, _display.height()-_FOOTER_HEIGHT-marginY-_ITEM_HEIGHT, 100, _ITEM_HEIGHT, _COLOR_RED);
         centerText("Play", 2, _COLOR_OFF_WHITE, (_display.width()-100)/2, _display.height()-_FOOTER_HEIGHT-marginY-_ITEM_HEIGHT, 100,_ITEM_HEIGHT);

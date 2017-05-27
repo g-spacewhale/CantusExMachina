@@ -47,7 +47,7 @@ class Display
     void displaySettings();
     void changeSettingsSelection(char selection);
     void changeSettingsValue(char selection, int valueChange);
-    void displaySongs();
+    void displaySongs(char selection);
     void changeSongsSelection(char selection);
     void displayPlayScreen(char selection);
 

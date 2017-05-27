@@ -63,6 +63,10 @@ void bootUpRoutine();
 void setup()
 {
     Serial.begin(9600);
+    while (!Serial);
+    Serial1.begin(31250);   // MIDI Port
+    while (!Serial1);
+
     Serial.println("");
     Serial.println("");
     Serial.println("");
@@ -235,7 +239,9 @@ void loop()
     case _STATE_PLAY_SONG:
       if(_dataManager.playSong() == _MIDI_END_OF_TRACK)
       {
-        Serial.println(String( ((millis()-_time)/1000) ,DEC));
+        Serial.println("Needed time: "+String((millis()-_time) ,DEC));
+        Serial.println("Actual time: "+String(_dataManager.getSong(_selection).getLength(),DEC));
+
         changeState(_STATE_SONG_SELECTION);
       }
       break;
@@ -287,12 +293,13 @@ void initState(unsigned char newState)
 
     case _STATE_HOME:
       // init Home (draw menu for first time)
+        _selection = 0;
       _display.displayHomeScreen();
       break;
 
     case _STATE_SONG_SELECTION:
       _currPosition = _selection;
-      _display.displaySongs();
+      _display.displaySongs(_selection);
       break;
 
     case _STATE_SETTINGS:
@@ -344,8 +351,6 @@ void bootUpRoutine()
   _display.begin();
   _display.displayBootupScreen();
 
-  delay(500);
-
   // Init SD-Card
   _display.changeBootupInfo("Initializing SD-Card");
   if(sdError)
@@ -358,7 +363,6 @@ void bootUpRoutine()
 
   // Load infos from SD card
 
-
   _display.changeBootupInfo("Parse Song Info");
 
   switch (_dataManager.parseSongInfos())
@@ -369,8 +373,6 @@ void bootUpRoutine()
     default:  // everything okay
       break;
   }
-
-  //delay(5000);
 
   _display.changeBootupInfo("bootUpRoutine done");
 

@@ -11,6 +11,7 @@
 
 #include <Arduino.h>
 #include <SD.h>
+#include <MIDI.h>
 
 #define _MIDI_FILE_HANDLER_ERROR_HEADER_TITLE -1
 #define _MIDI_FILE_HANDLER_ERROR_HEADER_LENGTH -2
@@ -71,7 +72,6 @@
 #define _MIDIE_FILE_META_EVENT_SEQUENCER_SPECIFIC   0x7F
 
 
-
 class MidiFileHandler
 {
   public:
@@ -121,8 +121,8 @@ class MidiFileHandler
     int8_t getSystemMessage(byte systemMessageCode);
     int8_t getMetaEvent(byte metaEventCode);
 
-    void doNoteOff(uint8_t channel, uint8_t note, uint16_t velocity);
-    void doNoteOn(uint8_t channel, uint8_t note, uint16_t velocity);
+    void doNoteOff();
+    void doNoteOn();
     void doKeyAftertouch(uint8_t channel, uint8_t note, uint16_t velocity);
     void doControlChange(uint8_t channel, uint16_t controllerNumber, uint16_t controllerValue);
     void doProgramChange(uint8_t channel, uint8_t programNumber);
