@@ -49,7 +49,9 @@ class Display
     void changeSettingsValue(char selection, int valueChange);
     void displaySongs(char selection);
     void changeSongsSelection(char selection);
-    void displayPlayScreen(char selection);
+    void displayPlaySong(char selection);
+    void changePlaySongSelection(char selection, boolean isPaused);
+    void changePlaySongTime(char selection);
 
   private:
     int _pinCS;

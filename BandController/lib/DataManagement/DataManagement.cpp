@@ -197,7 +197,7 @@ char DataManagement::playSong()
 
 void DataManagement::stopSong()
 {
-  _midiFileHandler->setPlaying(false);
+  _midiFileHandler->stopSong();
   _midiFile.close();
 }
 
@@ -209,6 +209,11 @@ Song DataManagement::getSong(int pos)
 uint16_t DataManagement::getSongCount()
 {
   return _songCount;
+}
+
+uint32_t DataManagement::getCurrentTime()
+{
+  return _midiFileHandler->getTotalTime();
 }
 
 /*char DataManagement::getLanguageFile(char language, File &languageFile)

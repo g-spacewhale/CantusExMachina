@@ -103,6 +103,7 @@ int8_t MidiFileHandler::getTrackInfo()
 
 int8_t MidiFileHandler::startSong()
 {
+  _timeSinceLast = millis();
   _trackLen = 0;
 	//check for correct track header, has to be MTrk
 	if(!(getNextByte()  == 'M' && getNextByte()  == 'T' && getNextByte()  == 'r' && getNextByte()  == 'k'))
@@ -113,16 +114,35 @@ int8_t MidiFileHandler::startSong()
 
 int8_t MidiFileHandler::playSong()
 {
+  int32_t realDeltaTime;
+
   if(_isPlaying && _counter >= _trackLen)
     return _MIDI_END_OF_TRACK;
 
   if(_isPlaying)
   {
-    delay(getDeltaTimeAsMillis());
+    realDeltaTime = getDeltaTimeAsMillis() - (millis() - _timeSinceLast);
+    if(realDeltaTime > 0)
+      delay(realDeltaTime);
+
+    _timeSinceLast = millis();
+
+    //delay(getDeltaTimeAsMillis());
   } else {
     getDeltaTimeAsMillis(); // just to get rid of the bytes
   }
   return getNextEvent();
+}
+
+int8_t MidiFileHandler::stopSong()
+{
+  setPlaying(false);
+  // end all notes
+
+
+
+
+  return _MIDI_END_OF_TRACK;
 }
 
 int8_t MidiFileHandler::getNextEvent()

@@ -94,6 +94,7 @@ class MidiFileHandler
     int8_t    getTrackInfo();
     int8_t    startSong();
     int8_t    playSong();
+    int8_t    stopSong();
     int8_t    getNextEvent();
 
   private:
@@ -109,6 +110,7 @@ class MidiFileHandler
     // Helper vars
     boolean   _isPlaying;
     uint32_t  _counter;
+    uint32_t  _timeSinceLast;
     File*     _midiFile;
     byte      _currentByte;
     byte      _nextByte;

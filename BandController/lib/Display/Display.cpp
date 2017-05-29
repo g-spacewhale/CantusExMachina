@@ -242,12 +242,13 @@ void Display::changeSongsSelection(char selection)
     _display.fillRect(15, _HEADER_HEIGHT+marginY, _display.width()-2*marginX, _display.height() - _HEADER_HEIGHT - _FOOTER_HEIGHT-2*marginY, _COLOR_OFF_WHITE);
 
     // scrollbar
-    uint16_t scrollbarHeight = _display.height() - _HEADER_HEIGHT - _FOOTER_HEIGHT - 2*marginY;
-    uint16_t scrollerHeight = scrollbarHeight / (songCount + 1); // +1 for return
+    float scrollbarHeight = _display.height() - _HEADER_HEIGHT - _FOOTER_HEIGHT - 2*marginY;
+    float scrollerHeight = ceil(scrollbarHeight / (songCount + 1)); // +1 for return
+    float scrollerPosition = _HEADER_HEIGHT + marginY + selection * scrollerHeight;
 
-
-    _display.fillRect(_display.width()-marginX, _HEADER_HEIGHT + marginY, 5, scrollbarHeight, _COLOR_LIGHT_GREY);
-    _display.fillRect(_display.width()-marginX, _HEADER_HEIGHT + marginY + (selection * scrollerHeight), 5, scrollerHeight, _COLOR_RED);
+    _display.drawRect(_display.width()-marginX, _HEADER_HEIGHT + marginY - 1, 5+2, scrollbarHeight+2, _COLOR_LIGHT_GREY);
+    _display.fillRect(_display.width()-marginX+1, _HEADER_HEIGHT + marginY, 5, scrollbarHeight, _COLOR_OFF_WHITE);
+    _display.fillRect(_display.width()-marginX+1, scrollerPosition, 5, scrollerHeight, _COLOR_RED);
 
     if(selection == songCount) // is return
     {
@@ -257,25 +258,68 @@ void Display::changeSongsSelection(char selection)
     } else {
       temp = _dataManager->getSong(selection);
       centerTextVerticallyAllignLeft(temp.getTitle(), 3, _COLOR_RED, marginX, _HEADER_HEIGHT+marginY, _ITEM_HEIGHT);
-      centerTextVerticallyAllignLeft("Length: "+convertTimeToString(temp.getLength()), 2, _COLOR_LIGHT_GREY, marginX, _HEADER_HEIGHT+marginY+_ITEM_HEIGHT, _ITEM_SMALL_HEIGHT);
-      centerTextVerticallyAllignLeft("Keys: 8", 2, _COLOR_LIGHT_GREY, marginX, _HEADER_HEIGHT+marginY+_ITEM_HEIGHT+_ITEM_SMALL_HEIGHT, _ITEM_SMALL_HEIGHT);
-      centerTextVerticallyAllignLeft("Drums: 8", 2, _COLOR_LIGHT_GREY, marginX, _HEADER_HEIGHT+marginY+_ITEM_HEIGHT+_ITEM_SMALL_HEIGHT*2, _ITEM_SMALL_HEIGHT);
+      centerTextVerticallyAllignLeft( _translation.getTranslation("length_label", _language)+": "+convertTimeToString(temp.getLength()) + " " + _translation.getTranslation("minute_label", _language), 2, _COLOR_LIGHT_GREY, marginX, _HEADER_HEIGHT+marginY+_ITEM_HEIGHT, _ITEM_SMALL_HEIGHT);
+      //centerTextVerticallyAllignLeft("Keys: ", 2, _COLOR_LIGHT_GREY, marginX, _HEADER_HEIGHT+marginY+_ITEM_HEIGHT+_ITEM_SMALL_HEIGHT, _ITEM_SMALL_HEIGHT);
+      //centerTextVerticallyAllignLeft("Drums: ", 2, _COLOR_LIGHT_GREY, marginX, _HEADER_HEIGHT+marginY+_ITEM_HEIGHT+_ITEM_SMALL_HEIGHT*2, _ITEM_SMALL_HEIGHT);
 
       if(temp.getFormat() != 0)
       {
-        _display.fillRect((_display.width()-200)/2, _display.height()-_FOOTER_HEIGHT-marginY-_ITEM_HEIGHT, 200, _ITEM_HEIGHT, _COLOR_LIGHT_GREY);
-        centerText("Not Supported", 2, _COLOR_OFF_WHITE, (_display.width()-200)/2, _display.height()-_FOOTER_HEIGHT-marginY-_ITEM_HEIGHT, 200,_ITEM_HEIGHT);
+        _display.fillRect((_display.width()-230)/2, _display.height()-_FOOTER_HEIGHT-marginY-_ITEM_HEIGHT, 230, _ITEM_HEIGHT, _COLOR_OFF_WHITE);
+        _display.drawRect((_display.width()-230)/2, _display.height()-_FOOTER_HEIGHT-marginY-_ITEM_HEIGHT, 230, _ITEM_HEIGHT, _COLOR_LIGHT_GREY);
+        centerText(_translation.getTranslation("notSupported_label", _language), 2, _COLOR_LIGHT_GREY, (_display.width()-230)/2, _display.height()-_FOOTER_HEIGHT-marginY-_ITEM_HEIGHT, 230,_ITEM_HEIGHT);
       } else {
-        _display.fillRect((_display.width()-100)/2, _display.height()-_FOOTER_HEIGHT-marginY-_ITEM_HEIGHT, 100, _ITEM_HEIGHT, _COLOR_RED);
-        centerText("Play", 2, _COLOR_OFF_WHITE, (_display.width()-100)/2, _display.height()-_FOOTER_HEIGHT-marginY-_ITEM_HEIGHT, 100,_ITEM_HEIGHT);
+        _display.fillRect((_display.width()-120)/2, _display.height()-_FOOTER_HEIGHT-marginY-_ITEM_HEIGHT, 120, _ITEM_HEIGHT, _COLOR_RED);
+        centerText(_translation.getTranslation("play_label", _language), 2, _COLOR_OFF_WHITE, (_display.width()-120)/2, _display.height()-_FOOTER_HEIGHT-marginY-_ITEM_HEIGHT, 120,_ITEM_HEIGHT);
       }
     }
 }
 
-void Display::displayPlayScreen(char selection)
+void Display::displayPlaySong(char selection)
 {
-  _display.fillScreen(_COLOR_RED);
-  centerText("Playing: "+_dataManager->getSong(selection).getTitle(), 1, _COLOR_OFF_WHITE, 0,0,_display.width(),_display.height());
+  uint16_t marginY = 20;
+
+  createHeader(_translation.getTranslation("playing_title", _language));
+  _display.fillRect(0, _HEADER_HEIGHT, _display.width(), _display.height() - _HEADER_HEIGHT - _FOOTER_HEIGHT, _COLOR_OFF_WHITE);
+  createFooter(_translation.getTranslation("footer", _language));
+
+  centerText(_dataManager->getSong(selection).getTitle(), 3, _COLOR_RED, 0, _HEADER_HEIGHT+20, _display.width(), _ITEM_HEIGHT);
+  _display.fillRect((_display.width()-120)/2, _display.height()-_FOOTER_HEIGHT-marginY-_ITEM_HEIGHT, 120, _ITEM_HEIGHT, _COLOR_RED);
+  centerText(_translation.getTranslation("stop_label", _language), 2, _COLOR_OFF_WHITE, (_display.width()-120)/2, _display.height()-_FOOTER_HEIGHT-marginY-_ITEM_HEIGHT, 120,_ITEM_HEIGHT);
+
+  //_display.fillRect(60, 125, 200, 4, _COLOR_LIGHT_GREY);
+  _display.drawRect(59, 124, 202, 7, _COLOR_LIGHT_GREY);
+  centerTextVerticallyAllignRight(convertTimeToString(_dataManager->getSong(selection).getLength()), 1, _COLOR_LIGHT_GREY, (_display.width()/2), 131 , 101, 10);
+  //changePlaySongSelection(0,0);
+  changePlaySongTime(selection);
+}
+
+void Display::changePlaySongSelection(char selection, boolean isPaused) // because there is no pause this one is not used
+{
+  uint16_t buttonWidth = 120;
+  uint16_t buttonHeight = 30;
+  uint16_t posX1 = ((_display.width()/2)-buttonWidth)/2;
+  uint16_t posX2 = (_display.width()/2) + (((_display.width()/2)-buttonWidth)/2);
+  uint16_t posY = 170;
+
+  _display.fillRect(posX1, posY, buttonWidth, buttonHeight, (selection == 0) ? _COLOR_RED : _COLOR_OFF_WHITE);
+  centerText(!isPaused ? _translation.getTranslation("pause_label", _language) : _translation.getTranslation("play_label", _language), 2, (selection == 0) ? _COLOR_OFF_WHITE : _COLOR_LIGHT_GREY , posX1, posY, buttonWidth, buttonHeight);
+  _display.fillRect(posX2, posY, buttonWidth, buttonHeight, (selection == 1) ? _COLOR_RED : _COLOR_OFF_WHITE);
+  centerText(_translation.getTranslation("stop_label", _language), 2, (selection == 1) ? _COLOR_OFF_WHITE : _COLOR_LIGHT_GREY , posX2, posY, buttonWidth, buttonHeight);
+  _display.drawRect((selection != 0) ? posX1 : posX2, posY, buttonWidth, buttonHeight, _COLOR_LIGHT_GREY);
+}
+
+void Display::changePlaySongTime(char selection)
+{
+  uint32_t totalLength = _dataManager->getSong(selection).getLength();
+  uint32_t curretnTime = _dataManager->getCurrentTime();
+  uint32_t width = (200 * ((curretnTime * 100) / totalLength)) / 100;
+
+  if(width < 1) width = 1;
+  if(width > 200) width = 200;
+
+  //_display.fillRect(60, 131, 40, 10, _COLOR_OFF_WHITE);
+  //centerTextVerticallyAllignLeft(convertTimeToString(curretnTime), 1, _COLOR_LIGHT_GREY, 60, 131, 10);
+  _display.fillRect(60, 125, width, 5, _COLOR_RED);
 }
 
 // Helper functions
@@ -397,7 +441,7 @@ void Display::createSettingsItem(uint16_t pos, String label, String value, boole
 
 String Display::convertTimeToString(uint32_t us)
 {
-  return String((us / 1000) / 60,DEC) + ":" + String((us / 1000) % 60 ,DEC) + " min";
+  return String((us / 1000) / 60,DEC) + ":" + String((us / 1000) % 60 ,DEC);
 }
 
 // ----------------- ADOPTED CODE ----------------- //
@@ -430,7 +474,7 @@ void Display::bmpDraw(String filename, uint16_t x, uint16_t y, Adafruit_ILI9340 
   uint8_t  sdbuffer[3*BUFFPIXEL];       // pixel buffer (R+G+B per pixel)
   uint8_t  buffidx = sizeof(sdbuffer);  // Current position in sdbuffer
   boolean  goodBmp = false;             // Set to true on valid header parse
-  boolean  flip    = true;              // BMP is sto_COLOR_RED bottom-to-top
+  boolean  flip    = true;              // BMP is stored bottom-to-top
   int      w, h, row, col;
   uint8_t  r, g, b;
   uint32_t pos = 0, startTime = millis();

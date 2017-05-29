@@ -14,7 +14,7 @@
 #define _languageEnglish 0    // english is the standard language
 #define _languageGerman 1
 
-#define _translationsCount 8
+#define _translationsCount 15
 
 #include <Arduino.h>
 #include <SD.h>

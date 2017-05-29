@@ -237,13 +237,26 @@ void loop()
       break;
 
     case _STATE_PLAY_SONG:
-      if(_dataManager.playSong() == _MIDI_END_OF_TRACK)
+
+      if(_dataManager.playSong() == _MIDI_END_OF_TRACK) // at end of track
       {
         Serial.println("Needed time: "+String((millis()-_time) ,DEC));
         Serial.println("Actual time: "+String(_dataManager.getSong(_selection).getLength(),DEC));
 
         changeState(_STATE_SONG_SELECTION);
+      } else {
+        _display.changePlaySongTime(_selection);
       }
+
+      // check if encoder was clicked
+      if(encoderGetClicks())
+      {
+        encoderResetClicks();
+        // Stop was selected
+        _dataManager.stopSong();
+        changeState(_STATE_SONG_SELECTION);
+      }
+
       break;
 
     default:
@@ -307,7 +320,7 @@ void initState(unsigned char newState)
       break;
 
     case _STATE_PLAY_SONG:
-      _display.displayPlayScreen(_selection);
+      _display.displayPlaySong(_selection);
       _dataManager.startSong(_selection);
       _time = millis();
       break;
@@ -359,7 +372,7 @@ void bootUpRoutine()
     return;
   }
 
-  _display.changeBootupInfo("Load languageFile");
+  // _display.changeBootupInfo("Load languageFile");
 
   // Load infos from SD card
 

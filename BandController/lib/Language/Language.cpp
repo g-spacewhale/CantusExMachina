@@ -61,4 +61,32 @@ void Language::createLanguageMap()
   _languageCode                   [7] = "brightness_label";
   _translations[_languageEnglish] [7] = "Brightness:";
   _translations[_languageGerman]  [7] = "Helligkeit:";
+
+  _languageCode                   [8] = "playing_title";
+  _translations[_languageEnglish] [8] = "Playing Song";
+  _translations[_languageGerman]  [8] = "Spielt Lied";
+
+  _languageCode                   [9] = "play_label";
+  _translations[_languageEnglish] [9] = "Play";
+  _translations[_languageGerman]  [9] = "Abspielen";
+
+  _languageCode                   [10] = "pause_label";
+  _translations[_languageEnglish] [10] = "Pause";
+  _translations[_languageGerman]  [10] = "Pause";
+
+  _languageCode                   [11] = "stop_label";
+  _translations[_languageEnglish] [11] = "Stop";
+  _translations[_languageGerman]  [11] = "Stop";
+
+  _languageCode                   [12] = "notSupported_label";
+  _translations[_languageEnglish] [12] = "Not supported";
+  _translations[_languageGerman]  [12] = "Nicht unterstuetzt";
+
+  _languageCode                   [13] = "length_label";
+  _translations[_languageEnglish] [13] = "Length";
+  _translations[_languageGerman]  [13] = "Laenge";
+
+  _languageCode                   [14] = "minute_label";
+  _translations[_languageEnglish] [14] = "min";
+  _translations[_languageGerman]  [14] = "min";
 }

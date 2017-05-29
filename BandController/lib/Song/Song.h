@@ -20,7 +20,7 @@ class Song
     // Setter
     void      setPath(String path);
     void      setTitle(String title);
-    void      setLength(uint16_t length);
+    void      setLength(uint32_t length);
 
     void      setFormat(uint16_t format);
     void      setNtrks(uint16_t ntrks);
@@ -32,7 +32,7 @@ class Song
 
     String    getPath();
     String    getTitle();
-    uint16_t  getLength();
+    uint32_t  getLength();
 
     uint16_t  getFormat();
     uint16_t  getNtrks();
@@ -42,7 +42,7 @@ class Song
   private:
     String    _path;
     String    _title;
-    uint16_t  _length;
+    uint32_t  _length;
 
     uint16_t  _format;       // midi format
     uint16_t  _ntrks;        // number of tracks

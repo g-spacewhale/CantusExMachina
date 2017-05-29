@@ -29,8 +29,10 @@ class DataManagement
     char parseSongInfos();
     char startSong(int16_t selection);
     char playSong();
+    char pauseSong();
     void stopSong();
     Song getSong(int pos);
+    uint32_t getCurrentTime();
     uint16_t getSongCount();
 
   private:
