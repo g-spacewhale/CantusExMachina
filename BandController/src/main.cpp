@@ -320,8 +320,8 @@ void initState(unsigned char newState)
       break;
 
     case _STATE_PLAY_SONG:
-      _display.displayPlaySong(_selection);
       _dataManager.startSong(_selection);
+      _display.displayPlaySong(_selection);
       _time = millis();
       break;
 

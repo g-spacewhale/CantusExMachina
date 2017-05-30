@@ -286,6 +286,8 @@ void Display::displayPlaySong(char selection)
   _display.fillRect((_display.width()-120)/2, _display.height()-_FOOTER_HEIGHT-marginY-_ITEM_HEIGHT, 120, _ITEM_HEIGHT, _COLOR_RED);
   centerText(_translation.getTranslation("stop_label", _language), 2, _COLOR_OFF_WHITE, (_display.width()-120)/2, _display.height()-_FOOTER_HEIGHT-marginY-_ITEM_HEIGHT, 120,_ITEM_HEIGHT);
 
+  _prevWidth = 0;
+
   //_display.fillRect(60, 125, 200, 4, _COLOR_LIGHT_GREY);
   _display.drawRect(59, 124, 202, 7, _COLOR_LIGHT_GREY);
   centerTextVerticallyAllignRight(convertTimeToString(_dataManager->getSong(selection).getLength()), 1, _COLOR_LIGHT_GREY, (_display.width()/2), 131 , 101, 10);
@@ -314,12 +316,16 @@ void Display::changePlaySongTime(char selection)
   uint32_t curretnTime = _dataManager->getCurrentTime();
   uint32_t width = (200 * ((curretnTime * 100) / totalLength)) / 100;
 
+
   if(width < 1) width = 1;
   if(width > 200) width = 200;
 
   //_display.fillRect(60, 131, 40, 10, _COLOR_OFF_WHITE);
-  //centerTextVerticallyAllignLeft(convertTimeToString(curretnTime), 1, _COLOR_LIGHT_GREY, 60, 131, 10);
+  if(_prevWidth > width)
+    centerTextVerticallyAllignLeft(convertTimeToString(curretnTime), 1, _COLOR_OFF_WHITE, 60, 131, 10);
+    
   _display.fillRect(60, 125, width, 5, _COLOR_RED);
+  _prevWidth = width;
 }
 
 // Helper functions

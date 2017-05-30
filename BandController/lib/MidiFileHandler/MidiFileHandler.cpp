@@ -110,6 +110,7 @@ int8_t MidiFileHandler::startSong()
     return _MIDI_FILE_HADLER_ERROR_TRACK_TITLE;
 
 	_trackLen = getNextNBytesAsInt(4);
+  return 0;
 }
 
 int8_t MidiFileHandler::playSong()
@@ -117,7 +118,10 @@ int8_t MidiFileHandler::playSong()
   int32_t realDeltaTime;
 
   if(_isPlaying && _counter >= _trackLen)
-    return _MIDI_END_OF_TRACK;
+  {
+    return stopSong();
+  }
+
 
   if(_isPlaying)
   {
@@ -138,9 +142,10 @@ int8_t MidiFileHandler::stopSong()
 {
   setPlaying(false);
   // end all notes
-
-
-
+  for(int i = 1; i <= 16; i++)
+  {
+    doAllNotesOff(i);
+  }
 
   return _MIDI_END_OF_TRACK;
 }
@@ -368,6 +373,7 @@ void MidiFileHandler::doNoteOff()
   }
 }
 
+
 void MidiFileHandler::doNoteOn()
 {
   //uint8_t channel = _punyStatusNibble;
@@ -395,6 +401,20 @@ void MidiFileHandler::doKeyAftertouch(uint8_t channel, uint8_t note, uint16_t pr
     Serial1.write(_currentStatusByte);
     Serial1.write(note);
     Serial1.write(pressure);
+  }
+}
+
+void MidiFileHandler::doAllNotesOff(uint8_t channel)
+{
+  byte temp;
+  if(_isPlaying)
+  {
+    temp = 0xB0 & channel;
+    Serial1.write(temp);
+    temp = 123;
+    Serial1.write(temp);
+    temp = 0;
+    Serial1.write(temp);
   }
 }
 

@@ -43,11 +43,11 @@ String    Song::getTitle() {return _title;}
 uint32_t  Song::getLength() {return _length;}
 
 uint16_t  Song::getFormat() {return _format;}
-uint16_t  Song::getNtrks(){return _ntrks;}
-uint16_t  Song::getTpqn(){return _tpqn;}
-uint32_t  Song::getUsPerMidiQn(){return _usPerMidiQn;}
+uint16_t  Song::getNtrks() {return _ntrks;}
+uint16_t  Song::getTpqn() {return _tpqn;}
+uint32_t  Song::getUsPerMidiQn() {return _usPerMidiQn;}
 
 String Song::getInfo()
 {
-  return "Path: "+_path+" | Title: "+_title+" | Format: "+String(_format,DEC)+" | Length: "+String(_length,DEC);
+  return "Path: "+_path+" | Title: \""+_title+"\" | Format: "+String(_format,DEC)+" | Length: "+String(_length,DEC);
 }

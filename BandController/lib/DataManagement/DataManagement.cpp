@@ -126,7 +126,8 @@ char DataManagement::parseSongInfos()
                 Serial.println("Track Info is okay");
 
                 // store data from Song Info
-                temp->setTitle(_midiFileHandler->getTitle());
+                if(_midiFileHandler->getTitle().length() > 0)
+                  temp->setTitle(_midiFileHandler->getTitle());
                 temp->setLength(_midiFileHandler->getTotalTime());
                 // get more info
             }

@@ -67,6 +67,7 @@ class Display
     uint32_t read32(File & f);
     uint16_t read16(File & f);
     DataManagement *_dataManager;
+    uint32_t _prevWidth;
 
     // Helper functions
     void centerText(String text, char fontSize, uint16_t color, uint16_t x, uint16_t y, uint16_t width = 0, uint16_t height = 0);
