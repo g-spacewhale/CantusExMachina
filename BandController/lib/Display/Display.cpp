@@ -214,7 +214,7 @@ void Display::changeSettingsValue(char selection, int valueChange)
   switch (selection)
   {
     case _SETTINGS_LANGUAGE:
-      value = _translation.getTranslation("language_code", valueChange);
+      value = _translation.getTranslation("language_code_"+String(valueChange,DEC), _language);
       break;
     case _SETTINGS_BRIGHTNESS:
       value = String(valueChange)+"%";
@@ -323,7 +323,7 @@ void Display::changePlaySongTime(char selection)
   //_display.fillRect(60, 131, 40, 10, _COLOR_OFF_WHITE);
   if(_prevWidth > width)
     centerTextVerticallyAllignLeft(convertTimeToString(curretnTime), 1, _COLOR_OFF_WHITE, 60, 131, 10);
-    
+
   _display.fillRect(60, 125, width, 5, _COLOR_RED);
   _prevWidth = width;
 }
