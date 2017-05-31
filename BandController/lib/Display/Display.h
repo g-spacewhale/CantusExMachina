@@ -71,7 +71,7 @@ class Display
 
     // Helper functions
     void centerText(String text, char fontSize, uint16_t color, uint16_t x, uint16_t y, uint16_t width = 0, uint16_t height = 0);
-    void centerTextVerticallyAllignLeft(String text, char fontSize, uint16_t color, uint16_t x, uint16_t y, uint16_t height = 0);
+    void centerTextVerticallyAllignLeft(String text, char fontSize, uint16_t color, uint16_t x, uint16_t y, uint16_t height = 0, uint16_t width = 0);
     void centerTextVerticallyAllignRight(String text, char fontSize, uint16_t color, uint16_t x, uint16_t y, uint16_t width = 0, uint16_t height = 0);
     void createHeader(String title);
     void createFooter(String text);

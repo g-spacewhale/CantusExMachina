@@ -372,9 +372,12 @@ void bootUpRoutine()
     return;
   }
 
-  // _display.changeBootupInfo("Load languageFile");
 
   // Load infos from SD card
+  _display.changeBootupInfo("Load languageFile");
+
+  //_dataManager.changeLanguage(_language);
+  //Serial.println("Yeah motherfucker: "+_dataManager.getTranslations("settings_title"));
 
   _display.changeBootupInfo("Parse Song Info");
 

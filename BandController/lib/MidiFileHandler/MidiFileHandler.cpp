@@ -404,18 +404,15 @@ void MidiFileHandler::doKeyAftertouch(uint8_t channel, uint8_t note, uint16_t pr
   }
 }
 
-void MidiFileHandler::doAllNotesOff(uint8_t channel)
+void MidiFileHandler::doAllNotesOff(char channel)
 {
   byte temp;
-  if(_isPlaying)
-  {
-    temp = 0xB0 & channel;
-    Serial1.write(temp);
-    temp = 123;
-    Serial1.write(temp);
-    temp = 0;
-    Serial1.write(temp);
-  }
+  temp = 0xB0 | channel;
+  Serial1.write(temp);
+  temp = 123;
+  Serial1.write(temp);
+  temp = 0;
+  Serial1.write(temp);
 }
 
 void MidiFileHandler::doControlChange(uint8_t channel, uint16_t controllerNumber, uint16_t controllerValue)

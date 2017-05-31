@@ -12,6 +12,7 @@
 #include <SD.h>
 #include <Song.h>
 #include <MidiFileHandler.h>
+#include <Language.h>
 
 #define _RETURNVAL_MIDI_DIR_NOT_FOUND -1
 #define _RETURNVAL_MIDI_FILE_NOT_FOUND -2
@@ -24,7 +25,8 @@ class DataManagement
   public:
     DataManagement(int pinCS);
     char begin();
-    //char getLanguageFile(char language, File &languageFile);
+    char changeLanguage(char language);
+    char getLanguageFile(char language, File &languageFile);
     char loadSongs();
     char parseSongInfos();
     char startSong(int16_t selection);
@@ -32,12 +34,15 @@ class DataManagement
     char pauseSong();
     void stopSong();
     Song getSong(int pos);
+    String getTranslations(String languageCode);
     uint32_t getCurrentTime();
     uint16_t getSongCount();
 
   private:
     int _pinCS;
     Song *_songs[_MAX_SONG_COUNT];
+    unsigned char _language;
+    Language *_translations;
     uint16_t _songCount;
     File _midiFile;
     MidiFileHandler *_midiFileHandler;

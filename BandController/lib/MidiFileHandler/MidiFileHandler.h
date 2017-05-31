@@ -126,7 +126,7 @@ class MidiFileHandler
     void doNoteOff();
     void doNoteOn();
     void doKeyAftertouch(uint8_t channel, uint8_t note, uint16_t velocity);
-    void doAllNotesOff(uint8_t channel);
+    void doAllNotesOff(char channel);
     void doControlChange(uint8_t channel, uint16_t controllerNumber, uint16_t controllerValue);
     void doProgramChange(uint8_t channel, uint8_t programNumber);
     void doChannelAftertouch(uint8_t channel, uint16_t pressure);

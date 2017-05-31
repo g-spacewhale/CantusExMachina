@@ -14,7 +14,8 @@
 #define _languageEnglish 0    // english is the standard language
 #define _languageGerman 1
 
-#define _translationsCount 15
+#define _MAX_TRANSLATION_COUNT 20
+#define _translationsCount 17
 
 #include <Arduino.h>
 #include <SD.h>
@@ -23,13 +24,19 @@ class Language
 {
   public:
     Language();
-    //String getTranslation(File &languageFile, String languageCode);
+    String getTranslationNew(String languageCode);
     String getTranslation(String languageCode, uint8_t language);
+    void parseLanguageFile(File &languageFile);
 
   private:
     uint8_t _language;
-    String _languageCode[_translationsCount];
-    String _translations[2][_translationsCount];
+    uint16_t _translationsCount_NEW;
+
+    String _languageCodes_NEW[_MAX_TRANSLATION_COUNT];
+    String _translations_NEW[_MAX_TRANSLATION_COUNT];
+
+    String _languageCode[_MAX_TRANSLATION_COUNT];
+    String _translations[2][_MAX_TRANSLATION_COUNT];
 
     void createLanguageMap();
 };

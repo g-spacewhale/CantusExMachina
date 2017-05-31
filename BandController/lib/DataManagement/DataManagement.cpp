@@ -26,6 +26,7 @@
 #include <Arduino.h>
 #include <SD.h>
 #include <Song.h>
+#include <Language.h>
 
 
 DataManagement::DataManagement(int pinCS)
@@ -207,6 +208,11 @@ Song DataManagement::getSong(int pos)
   return *_songs[pos];
 }
 
+String DataManagement::getTranslations(String languageCode)
+{
+  return _translations->getTranslationNew(languageCode);
+}
+
 uint16_t DataManagement::getSongCount()
 {
   return _songCount;
@@ -217,7 +223,41 @@ uint32_t DataManagement::getCurrentTime()
   return _midiFileHandler->getTotalTime();
 }
 
-/*char DataManagement::getLanguageFile(char language, File &languageFile)
+char DataManagement::changeLanguage(char language)
+{
+  _language = language;
+  File languageFile;
+
+  switch (language)
+  {
+    case _languageEnglish:
+      if(!SD.exists("lang/eng"))
+      {
+        return -1;
+      } else {
+        languageFile = SD.open("lang/eng");
+      }
+      break;
+    case _languageGerman:
+      if(!SD.exists("lang/ger"))
+      {
+        return -1;
+      } else {
+        languageFile = SD.open("lang/ger");
+      }
+      break;
+    default:
+      // error HOW TO HANLDE??
+      return -1;
+      break;
+  }
+  _translations->parseLanguageFile(languageFile);
+
+  languageFile.close();
+  return 0;
+}
+
+char DataManagement::getLanguageFile(char language, File &languageFile)
 {
   switch (language)
   {
@@ -245,4 +285,4 @@ uint32_t DataManagement::getCurrentTime()
       break;
   }
   return 0;
-}*/
+}

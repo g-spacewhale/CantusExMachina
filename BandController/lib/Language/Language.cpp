@@ -18,6 +18,61 @@ Language::Language()
   createLanguageMap();
 }
 
+void Language::parseLanguageFile(File &languageFile)
+{
+  String languageCode;
+  String translation;
+
+  Serial.println("");
+  Serial.println("parseLanguageFile");
+  Serial.println("");
+
+  for(int i = 0; i < _MAX_TRANSLATION_COUNT; i++)
+  {
+    if(languageFile.available() != 0)
+    {
+      /*text = "";
+      while((temp = languageFile.read()) != '=')
+      {
+        text = text + char(temp);
+      }
+      //_languageCodes_NEW[0] = text;
+      Serial.print(text+" = ");
+      text = "";
+      while((temp = languageFile.read()) != '\n')
+      {
+        text = text + char(temp);
+      }
+      //_translations_NEW[0] = text;
+      Serial.println(text);*/
+
+      languageCode = languageFile.readStringUntil('=');
+      translation = languageFile.readStringUntil('\n');
+      Serial.println("#"+String(i,DEC)+": \""+languageCode+"\" = \""+translation+"\"");
+      _languageCodes_NEW[0] = languageCode;
+      _translations_NEW[0] = translation;
+      //_languageCodes_NEW[i] = languageFile.readStringUntil('=');
+      //_translations_NEW[i] = languageFile.readStringUntil('\n');
+      //Serial.println(_languageCodes_NEW[i] + " " + languageFile.readStringUntil('\n'));
+      //_translationsCount_NEW = i;
+    } else {
+      break;
+    }
+  }
+  Serial.println("");
+  Serial.println("");
+}
+
+String Language::getTranslationNew(String languageCode)
+{
+  for(uint32_t i = 0; i < _translationsCount_NEW; i++)
+  {
+    if(_languageCodes_NEW[i].indexOf(languageCode) >= 0 )
+      return _translations_NEW[i];
+  }
+  return "- NA -";
+}
+
 String Language::getTranslation(String languageCode, uint8_t language)
 {
   for(uint16_t i = 0; i < _translationsCount; i++)
@@ -25,7 +80,7 @@ String Language::getTranslation(String languageCode, uint8_t language)
     if(_languageCode[i].indexOf(languageCode) >= 0 )
       return _translations[language][i];
   }
-  return "NA";
+  return "- NA -";
 }
 
 void Language::createLanguageMap()
@@ -89,4 +144,12 @@ void Language::createLanguageMap()
   _languageCode                   [14] = "minute_label";
   _translations[_languageEnglish] [14] = "min";
   _translations[_languageGerman]  [14] = "min";
+
+  _languageCode                   [15] = "language_code_0";
+  _translations[_languageEnglish] [15] = "ENG";
+  _translations[_languageGerman]  [15] = "ENG";
+
+  _languageCode                   [16] = "language_code_1";
+  _translations[_languageEnglish] [16] = "GER";
+  _translations[_languageGerman]  [16] = "DEU";
 }

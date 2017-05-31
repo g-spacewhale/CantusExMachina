@@ -257,7 +257,7 @@ void Display::changeSongsSelection(char selection)
       _display.drawBitmap((_display.width()-100)/2 + 18, _HEADER_HEIGHT + 30 + 18, returnIcon, 64, 64, _COLOR_OFF_WHITE);
     } else {
       temp = _dataManager->getSong(selection);
-      centerTextVerticallyAllignLeft(temp.getTitle(), 3, _COLOR_RED, marginX, _HEADER_HEIGHT+marginY, _ITEM_HEIGHT);
+      centerTextVerticallyAllignLeft(temp.getTitle(), 3, _COLOR_RED, marginX, _HEADER_HEIGHT+marginY, _ITEM_HEIGHT,_display.width()-2*marginX);
       centerTextVerticallyAllignLeft( _translation.getTranslation("length_label", _language)+": "+convertTimeToString(temp.getLength()) + " " + _translation.getTranslation("minute_label", _language), 2, _COLOR_LIGHT_GREY, marginX, _HEADER_HEIGHT+marginY+_ITEM_HEIGHT, _ITEM_SMALL_HEIGHT);
       //centerTextVerticallyAllignLeft("Keys: ", 2, _COLOR_LIGHT_GREY, marginX, _HEADER_HEIGHT+marginY+_ITEM_HEIGHT+_ITEM_SMALL_HEIGHT, _ITEM_SMALL_HEIGHT);
       //centerTextVerticallyAllignLeft("Drums: ", 2, _COLOR_LIGHT_GREY, marginX, _HEADER_HEIGHT+marginY+_ITEM_HEIGHT+_ITEM_SMALL_HEIGHT*2, _ITEM_SMALL_HEIGHT);
@@ -335,11 +335,20 @@ void Display::centerText(String text, char fontSize, uint16_t color, uint16_t x,
   uint8_t fontWidth = fontSize * 6; // 6 is standard font width
   uint8_t fontHeight = fontSize * 8; // 8 is standard font height
   uint8_t length = text.length();
+  uint16_t count;
 
   if(height == 0)
     height = fontHeight;
   if(width == 0)
     width = fontWidth * length;
+
+  if((fontWidth * length) > width)
+  {
+    count = width / fontWidth;
+    text.remove(count-3);
+    text = text + "...";
+    length = text.length();
+  }
 
   if((length * fontWidth) <= width && fontHeight <= height)
   {
@@ -357,9 +366,12 @@ void Display::centerText(String text, char fontSize, uint16_t color, uint16_t x,
   _display.println(text);
 }
 
-void Display::centerTextVerticallyAllignLeft(String text, char fontSize, uint16_t color, uint16_t x, uint16_t y, uint16_t height)
+void Display::centerTextVerticallyAllignLeft(String text, char fontSize, uint16_t color, uint16_t x, uint16_t y, uint16_t height, uint16_t width)
 {
+  uint8_t fontWidth = fontSize * 6; // 6 is standard font width
   uint8_t fontHeight = fontSize * 8; // 8 is standard font height
+  uint8_t length = text.length();
+  uint8_t count;
 
   if(height == 0)
     height = fontHeight;
@@ -369,6 +381,15 @@ void Display::centerTextVerticallyAllignLeft(String text, char fontSize, uint16_
     _display.setCursor(x, y + ((height-fontHeight)/2) + (fontSize/2)); //  - (fontSize/2) -> because of the empty spacing pixel in the character
   } else if(fontHeight > height) {
     _display.setCursor(x, y - ((fontHeight-height)/2) + (fontSize/2));
+  }
+  if (width > 0)
+  {
+    if((fontWidth * length) > width)
+    {
+      count = width / fontWidth;
+      text.remove(count-3);
+      text = text + "...";
+    }
   }
 
   _display.setTextSize(fontSize);
