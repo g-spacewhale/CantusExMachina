@@ -259,6 +259,7 @@ void Display::changeSongsSelection(char selection)
       temp = _dataManager->getSong(selection);
       centerTextVerticallyAllignLeft(temp.getTitle(), 3, _COLOR_RED, marginX, _HEADER_HEIGHT+marginY, _ITEM_HEIGHT,_display.width()-2*marginX);
       centerTextVerticallyAllignLeft( _translation.getTranslation("length_label", _language)+": "+convertTimeToString(temp.getLength()) + " " + _translation.getTranslation("minute_label", _language), 2, _COLOR_LIGHT_GREY, marginX, _HEADER_HEIGHT+marginY+_ITEM_HEIGHT, _ITEM_SMALL_HEIGHT);
+      centerTextVerticallyAllignLeft(temp.getPath(), 1, _COLOR_LIGHT_GREY, marginX, _HEADER_HEIGHT+marginY+_ITEM_HEIGHT+_ITEM_SMALL_HEIGHT, _ITEM_SMALL_HEIGHT);
       //centerTextVerticallyAllignLeft("Keys: ", 2, _COLOR_LIGHT_GREY, marginX, _HEADER_HEIGHT+marginY+_ITEM_HEIGHT+_ITEM_SMALL_HEIGHT, _ITEM_SMALL_HEIGHT);
       //centerTextVerticallyAllignLeft("Drums: ", 2, _COLOR_LIGHT_GREY, marginX, _HEADER_HEIGHT+marginY+_ITEM_HEIGHT+_ITEM_SMALL_HEIGHT*2, _ITEM_SMALL_HEIGHT);
 

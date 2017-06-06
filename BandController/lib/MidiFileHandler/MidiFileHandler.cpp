@@ -10,7 +10,7 @@
 /*
 //  TODOS:
 //          - SMPTE Time format implementation
-//          -
+//          - get rid of SYSTEM COMMON MESSAGES & SYSTEM REAL-TIME MESSAGES as the do not exist in MIDI files
 */
 
 
@@ -122,19 +122,16 @@ int8_t MidiFileHandler::playSong()
     return stopSong();
   }
 
-
   if(_isPlaying)
   {
     realDeltaTime = getDeltaTimeAsMillis() - (millis() - _timeSinceLast);
     if(realDeltaTime > 0)
       delay(realDeltaTime);
-
     _timeSinceLast = millis();
-
-    //delay(getDeltaTimeAsMillis());
   } else {
     getDeltaTimeAsMillis(); // just to get rid of the bytes
   }
+
   return getNextEvent();
 }
 
