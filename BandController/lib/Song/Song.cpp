@@ -10,15 +10,6 @@
 #include "Song.h"
 #include <Arduino.h>
 
-
-/*Song::Song(String path, String title, unsigned char format, uint16_t length)
-{
-  _path = path;
-  _title = title;
-  _format = format;
-  _length = length;
-}*/
-
 Song::Song()
 {
   _path = "NA";

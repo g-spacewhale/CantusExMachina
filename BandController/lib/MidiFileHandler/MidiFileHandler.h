@@ -156,8 +156,6 @@ class MidiFileHandler
     int32_t   getNextNBytesAsInt(int8_t numberOfBytes, boolean isDataByte = false);
     byte      getPunyNibbleOf(byte thisByte);
     byte      getMightyNibbleOf(byte thisByte);
-
-
 };
 
 #endif

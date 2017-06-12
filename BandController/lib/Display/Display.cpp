@@ -116,7 +116,6 @@ const unsigned char returnIcon [] PROGMEM = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
-
 Display::Display(int pinCS, int pinDC, int pinRST, int pinBACKLIGHT, unsigned char backlight, unsigned char language, DataManagement *dataManager):_display(pinCS, pinDC, pinRST)
 {
   _pinCS = pinCS;
@@ -155,7 +154,6 @@ void Display::displayErrorMessage(char errorCode, String errorMessage)
   uint8_t marginY = 50;
   uint8_t headerHight = 35;
 
-  //_display.fillScreen(_COLOR_DARK_GREY);
   _display.fillRect(marginX, marginY, (_display.width()-(2*marginX)), (_display.height()-(2*marginY)), _COLOR_RED);
   centerText("Error #"+String(errorCode,DEC), 2, _COLOR_OFF_WHITE, marginX, marginY, (_display.width()-(2*marginX)), headerHight);
   _display.drawLine(marginX, marginY + headerHight, _display.width() - marginX, marginY + headerHight, _COLOR_OFF_WHITE);
@@ -187,7 +185,6 @@ void Display::changeHomeScreenSelection(char selection)
 {
   createHomeScreenButtons(selection, _translation.getTranslation("songs_title", _language), _translation.getTranslation("settings_title", _language));
 }
-
 
 void Display::displaySettings()
 {
@@ -260,8 +257,6 @@ void Display::changeSongsSelection(char selection)
       centerTextVerticallyAllignLeft(temp.getTitle(), 3, _COLOR_RED, marginX, _HEADER_HEIGHT+marginY, _ITEM_HEIGHT,_display.width()-2*marginX);
       centerTextVerticallyAllignLeft( _translation.getTranslation("length_label", _language)+": "+convertTimeToString(temp.getLength()) + " " + _translation.getTranslation("minute_label", _language), 2, _COLOR_LIGHT_GREY, marginX, _HEADER_HEIGHT+marginY+_ITEM_HEIGHT, _ITEM_SMALL_HEIGHT);
       centerTextVerticallyAllignLeft(temp.getPath(), 1, _COLOR_LIGHT_GREY, marginX, _HEADER_HEIGHT+marginY+_ITEM_HEIGHT+_ITEM_SMALL_HEIGHT, _ITEM_SMALL_HEIGHT);
-      //centerTextVerticallyAllignLeft("Keys: ", 2, _COLOR_LIGHT_GREY, marginX, _HEADER_HEIGHT+marginY+_ITEM_HEIGHT+_ITEM_SMALL_HEIGHT, _ITEM_SMALL_HEIGHT);
-      //centerTextVerticallyAllignLeft("Drums: ", 2, _COLOR_LIGHT_GREY, marginX, _HEADER_HEIGHT+marginY+_ITEM_HEIGHT+_ITEM_SMALL_HEIGHT*2, _ITEM_SMALL_HEIGHT);
 
       if(temp.getFormat() != 0)
       {
@@ -289,26 +284,9 @@ void Display::displayPlaySong(char selection)
 
   _prevWidth = 0;
 
-  //_display.fillRect(60, 125, 200, 4, _COLOR_LIGHT_GREY);
   _display.drawRect(59, 124, 202, 7, _COLOR_LIGHT_GREY);
   centerTextVerticallyAllignRight(convertTimeToString(_dataManager->getSong(selection).getLength()), 1, _COLOR_LIGHT_GREY, (_display.width()/2), 131 , 101, 10);
-  //changePlaySongSelection(0,0);
   changePlaySongTime(selection);
-}
-
-void Display::changePlaySongSelection(char selection, boolean isPaused) // because there is no pause this one is not used
-{
-  uint16_t buttonWidth = 120;
-  uint16_t buttonHeight = 30;
-  uint16_t posX1 = ((_display.width()/2)-buttonWidth)/2;
-  uint16_t posX2 = (_display.width()/2) + (((_display.width()/2)-buttonWidth)/2);
-  uint16_t posY = 170;
-
-  _display.fillRect(posX1, posY, buttonWidth, buttonHeight, (selection == 0) ? _COLOR_RED : _COLOR_OFF_WHITE);
-  centerText(!isPaused ? _translation.getTranslation("pause_label", _language) : _translation.getTranslation("play_label", _language), 2, (selection == 0) ? _COLOR_OFF_WHITE : _COLOR_LIGHT_GREY , posX1, posY, buttonWidth, buttonHeight);
-  _display.fillRect(posX2, posY, buttonWidth, buttonHeight, (selection == 1) ? _COLOR_RED : _COLOR_OFF_WHITE);
-  centerText(_translation.getTranslation("stop_label", _language), 2, (selection == 1) ? _COLOR_OFF_WHITE : _COLOR_LIGHT_GREY , posX2, posY, buttonWidth, buttonHeight);
-  _display.drawRect((selection != 0) ? posX1 : posX2, posY, buttonWidth, buttonHeight, _COLOR_LIGHT_GREY);
 }
 
 void Display::changePlaySongTime(char selection)
@@ -317,11 +295,9 @@ void Display::changePlaySongTime(char selection)
   uint32_t curretnTime = _dataManager->getCurrentTime();
   uint32_t width = (200 * ((curretnTime * 100) / totalLength)) / 100;
 
-
   if(width < 1) width = 1;
   if(width > 200) width = 200;
 
-  //_display.fillRect(60, 131, 40, 10, _COLOR_OFF_WHITE);
   if(_prevWidth > width)
     centerTextVerticallyAllignLeft(convertTimeToString(curretnTime), 1, _COLOR_OFF_WHITE, 60, 131, 10);
 
@@ -441,10 +417,6 @@ void Display::createHomeScreenButtons(char selection, String label1, String labe
   centerText(label1, 2, ((!selection%2) ? _COLOR_RED : _COLOR_LIGHT_GREY), 0, _HEADER_HEIGHT + 130, _display.width()/2, 40);
   centerText(label2, 2, ((selection%2) ? _COLOR_RED : _COLOR_LIGHT_GREY), _display.width()/2, _HEADER_HEIGHT + 130, _display.width()/2, 40);
 
-  // rounded rectangles create artifacts while creating
-  //_display.fillRoundRect(posX1, _HEADER_HEIGHT + 30, 100, 100, 10, ((!selection%2) ? _COLOR_RED : _COLOR_LIGHT_GREY));
-  //_display.fillRoundRect(posX2, _HEADER_HEIGHT + 30, 100, 100, 10, ((selection%2) ? _COLOR_RED : _COLOR_LIGHT_GREY));
-
   _display.fillRect(posX1, _HEADER_HEIGHT + 30, 100, 100, ((!selection%2) ? _COLOR_RED : _COLOR_LIGHT_GREY));
   _display.fillRect(posX2, _HEADER_HEIGHT + 30, 100, 100, ((selection%2) ? _COLOR_RED : _COLOR_LIGHT_GREY));
 
@@ -464,7 +436,6 @@ void Display::createSettingsItem(uint16_t pos, String label, String value, boole
   centerTextVerticallyAllignLeft(label, 2, (selected) ? _COLOR_RED : _COLOR_DARK_GREY, 35, y, _ITEM_HEIGHT);
   _display.fillRect(_display.width()-35-80 , y, 90, _ITEM_HEIGHT, _COLOR_OFF_WHITE);
   centerTextVerticallyAllignRight(value, 2, (selected) ? _COLOR_RED : _COLOR_DARK_GREY, _display.width()-35-80, y, 80, _ITEM_HEIGHT);
-  //_display.fillRect(_display.width()-15-80, y, 80 , _ITEM_HEIGHT, _COLOR_RED);
 }
 
 String Display::convertTimeToString(uint32_t us)

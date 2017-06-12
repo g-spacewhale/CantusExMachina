@@ -24,16 +24,10 @@ class Language
 {
   public:
     Language();
-    String getTranslationNew(String languageCode);
     String getTranslation(String languageCode, uint8_t language);
-    void parseLanguageFile(File &languageFile);
 
   private:
     uint8_t _language;
-    uint16_t _translationsCount_NEW;
-
-    String _languageCodes_NEW[_MAX_TRANSLATION_COUNT];
-    String _translations_NEW[_MAX_TRANSLATION_COUNT];
 
     String _languageCode[_MAX_TRANSLATION_COUNT];
     String _translations[2][_MAX_TRANSLATION_COUNT];

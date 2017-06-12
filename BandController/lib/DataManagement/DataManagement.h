@@ -25,13 +25,10 @@ class DataManagement
   public:
     DataManagement(int pinCS);
     char begin();
-    char changeLanguage(char language);
-    char getLanguageFile(char language, File &languageFile);
     char loadSongs();
     char parseSongInfos();
     char startSong(int16_t selection);
     char playSong();
-    char pauseSong();
     void stopSong();
     Song getSong(int pos);
     String getTranslations(String languageCode);

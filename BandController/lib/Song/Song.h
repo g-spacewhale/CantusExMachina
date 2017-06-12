@@ -15,7 +15,6 @@ class Song
 {
   public:
     Song();
-    //Song(String path, String title, unsigned char format, uint16_t length);
 
     // Setter
     void      setPath(String path);

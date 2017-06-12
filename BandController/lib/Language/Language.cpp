@@ -18,61 +18,6 @@ Language::Language()
   createLanguageMap();
 }
 
-void Language::parseLanguageFile(File &languageFile)
-{
-  String languageCode;
-  String translation;
-
-  Serial.println("");
-  Serial.println("parseLanguageFile");
-  Serial.println("");
-
-  for(int i = 0; i < _MAX_TRANSLATION_COUNT; i++)
-  {
-    if(languageFile.available() != 0)
-    {
-      /*text = "";
-      while((temp = languageFile.read()) != '=')
-      {
-        text = text + char(temp);
-      }
-      //_languageCodes_NEW[0] = text;
-      Serial.print(text+" = ");
-      text = "";
-      while((temp = languageFile.read()) != '\n')
-      {
-        text = text + char(temp);
-      }
-      //_translations_NEW[0] = text;
-      Serial.println(text);*/
-
-      languageCode = languageFile.readStringUntil('=');
-      translation = languageFile.readStringUntil('\n');
-      Serial.println("#"+String(i,DEC)+": \""+languageCode+"\" = \""+translation+"\"");
-      _languageCodes_NEW[0] = languageCode;
-      _translations_NEW[0] = translation;
-      //_languageCodes_NEW[i] = languageFile.readStringUntil('=');
-      //_translations_NEW[i] = languageFile.readStringUntil('\n');
-      //Serial.println(_languageCodes_NEW[i] + " " + languageFile.readStringUntil('\n'));
-      //_translationsCount_NEW = i;
-    } else {
-      break;
-    }
-  }
-  Serial.println("");
-  Serial.println("");
-}
-
-String Language::getTranslationNew(String languageCode)
-{
-  for(uint32_t i = 0; i < _translationsCount_NEW; i++)
-  {
-    if(_languageCodes_NEW[i].indexOf(languageCode) >= 0 )
-      return _translations_NEW[i];
-  }
-  return "- NA -";
-}
-
 String Language::getTranslation(String languageCode, uint8_t language)
 {
   for(uint16_t i = 0; i < _translationsCount; i++)

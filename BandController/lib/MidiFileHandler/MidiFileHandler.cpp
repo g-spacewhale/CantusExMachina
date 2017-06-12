@@ -10,7 +10,6 @@
 /*
 //  TODOS:
 //          - SMPTE Time format implementation
-//          - get rid of SYSTEM COMMON MESSAGES & SYSTEM REAL-TIME MESSAGES as the do not exist in MIDI files
 */
 
 
@@ -353,17 +352,11 @@ int8_t MidiFileHandler::getMetaEvent(byte metaEventCode)
 
 void MidiFileHandler::doNoteOff()
 {
-  //uint8_t channel = _punyStatusNibble;
-  //int8_t note = getNextNBytesAsInt(1,true);
-  //int8_t velocity = getNextNBytesAsInt(1,true);
-
   byte note = getNextByte();
   byte velocity = getNextByte();
 
   if(_isPlaying)
   {
-    //Serial.println("Note Off ("+String(_currentStatusByte, HEX)+") [Note: "+String(note, HEX)+ " | Velocity: "+String(velocity, HEX)+"]");
-
     Serial1.write(_currentStatusByte);
     Serial1.write(note);
     Serial1.write(velocity);
@@ -373,17 +366,11 @@ void MidiFileHandler::doNoteOff()
 
 void MidiFileHandler::doNoteOn()
 {
-  //uint8_t channel = _punyStatusNibble;
-  //int8_t note = getNextNBytesAsInt(1,true);
-  //int8_t velocity = getNextNBytesAsInt(1,true);
-
   byte note = getNextByte();
   byte velocity = getNextByte();
 
   if(_isPlaying)
   {
-    //Serial.println("Note On ("+String(_currentStatusByte, HEX)+") [Note: "+String(note, HEX)+ " | Velocity: "+String(velocity, HEX)+"]");
-
     Serial1.write(_currentStatusByte);
     Serial1.write(note);
     Serial1.write(velocity);
@@ -392,7 +379,6 @@ void MidiFileHandler::doNoteOn()
 
 void MidiFileHandler::doKeyAftertouch(uint8_t channel, uint8_t note, uint16_t pressure)
 {
-  //Serial.println("Aftertouch (#"+String(note, DEC)+") on [Channel: "+String(channel, DEC)+ " | Pressure: "+String(velocity, DEC)+"]");
   if(_isPlaying)
   {
     Serial1.write(_currentStatusByte);
@@ -478,7 +464,6 @@ void MidiFileHandler::doProgramChange(uint8_t channel, uint8_t programNumber)
 
 void MidiFileHandler::doChannelAftertouch(uint8_t channel, uint16_t pressure)
 {
-  //Serial.println("Channel aftertouch on [Channel: "+String(channel, DEC)+ " | Pressure: "+String(pressure, DEC)+"]");
   if(_isPlaying)
   {
     Serial1.write(_currentStatusByte);
@@ -488,7 +473,6 @@ void MidiFileHandler::doChannelAftertouch(uint8_t channel, uint16_t pressure)
 
 void MidiFileHandler::doPitchBend(uint8_t channel, uint32_t pitchBendChange)
 {
-  //Serial.println("Pitch Bend on [Channel: "+String(channel, DEC)+ " | Pitch Bend Change: "+String(pitchBendChange, DEC)+"]");
   if(_isPlaying)
   {
   }
@@ -506,14 +490,11 @@ void MidiFileHandler::setSequenceNumber()
   sequencerNumber = getNextNBytesAsInt(2);
 
   sequencerNumber = sequencerNumber;  // just so no warning appear
-
 }
 
 void MidiFileHandler::setTextEvent()
 {
   //FF 01 len text - text event
-  //Serial.println("new Text Event!");
-
   uint32_t length;
   String text = "";
   byte temp;
@@ -530,8 +511,6 @@ void MidiFileHandler::setTextEvent()
 void MidiFileHandler::setCopyrightNotice()
 {
   //FF 02 len text - copyright notice
-  //Serial.println("new Copyright notice!");
-
   uint32_t length;
   String text = "";
   byte temp;
@@ -548,7 +527,6 @@ void MidiFileHandler::setCopyrightNotice()
 void MidiFileHandler::setSequenceName()
 {
   //FF 03 len text - sequence track name
-  //Serial.println("new Sequence/Track name!");
   uint32_t length;
   String text = "";
   byte temp;
@@ -566,8 +544,6 @@ void MidiFileHandler::setSequenceName()
 void MidiFileHandler::setInstrumentName()
 {
   //FF 04 len text - Instrument Name
-  //Serial.println("new Instrument Description");
-
   uint32_t length;
   String text = "";
   byte temp;
@@ -584,8 +560,6 @@ void MidiFileHandler::setInstrumentName()
 void MidiFileHandler::setLyric()
 {
   //FF 05 len text - Lyric
-  //Serial.println("new Lyric");
-
   uint32_t length;
   String text = "";
   byte temp;
@@ -602,8 +576,6 @@ void MidiFileHandler::setLyric()
 void MidiFileHandler::setEventMarker()
 {
   //FF 06 len text - Marker
-  //Serial.println("new Marker!");
-
   uint32_t length;
   String text = "";
   byte temp;
@@ -620,8 +592,6 @@ void MidiFileHandler::setEventMarker()
 void MidiFileHandler::setCuePoint()
 {
   //FF 07 len text - cue point
-  //Serial.println("new Cue point!");
-
   uint32_t length;
   String text = "";
   byte temp;
@@ -645,16 +615,12 @@ void MidiFileHandler::setChannelPrefix()
 int8_t MidiFileHandler::doEndOfTrack()
 {
   //FF 2F 00 - End of Track
-  //getNextByte(); // next one is always 00 but next byte would be EOF
-  Serial.println("end of track reached");
   return _MIDI_END_OF_TRACK;
 }
 
 void MidiFileHandler::setTempo()
 {
   //FF 51 03  - Set Tempo
-  //Serial.println("changed tempo to "+String(_us_per_midi_qn,DEC));
-
   getNextByte(); // next one is always 01
   _usPerMidiQn = getNextNBytesAsInt(3);
 }
@@ -662,7 +628,6 @@ void MidiFileHandler::setTempo()
 void MidiFileHandler::setSMPTEOffset()
 {
   //FF 54 05 hr mn se fr ff - SMPTE Offset
-
   int16_t hr, mn, se, fr, ff = 0;
 
   getNextByte(); // next one is always 05
@@ -683,7 +648,6 @@ void MidiFileHandler::setTimeSignature()
 {
   //FF 58 04 nn dd cc bb - Time signature
   //this is important for time conversion.
-
   int16_t numerator, denominator, clocks_per_click, notated_32nd_per_qn = 0;
 
   getNextByte(); // next one is always 04
@@ -714,8 +678,6 @@ void MidiFileHandler::setKeySignature()
 void MidiFileHandler::doSequencerSpecificEvent()
 {
   //FF 7F len data - sequencer specific meta event
-  //Serial.println("new sequencer specific meta event!");
-
   uint32_t length;
   String text = "";
   byte temp;
@@ -723,13 +685,10 @@ void MidiFileHandler::doSequencerSpecificEvent()
   length = getVariableLength();
   for(uint32_t i = 0; i < length; i++)
   {
-    //text = text + getNextByte();
     temp = getNextByte();
     text = text + char(temp);
   }
 }
-
-
 
 
 // Helper functions

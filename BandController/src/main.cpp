@@ -67,15 +67,14 @@ void setup()
     Serial1.begin(31250);   // MIDI Port
     while (!Serial1);
 
-    Serial.println("");
-    Serial.println("");
-    Serial.println("");
-    Serial.println("----------------------- BandController Start -----------------------");
-    Serial.println("");
-
     // setup serial for debugg messages
     #ifdef _DEBUGING
       Serial.println("Debug Messages activated:");
+      Serial.println("");
+      Serial.println("");
+      Serial.println("");
+      Serial.println("----------------------- BandController Start -----------------------");
+      Serial.println("");
     #endif
 
     pinMode(_encoderPinA, INPUT);
@@ -150,7 +149,7 @@ void loop()
             changeState(_STATE_PLAY_SONG);
           } else {
             // convert song
-            // error(_ERROR_CONVERT);
+
           }
         }
       }
@@ -240,8 +239,10 @@ void loop()
 
       if(_dataManager.playSong() == _MIDI_END_OF_TRACK) // at end of track
       {
-        Serial.println("Needed time: "+String((millis()-_time) ,DEC));
-        Serial.println("Actual time: "+String(_dataManager.getSong(_selection).getLength(),DEC));
+        #ifdef _DEBUGING
+          Serial.println("Needed time: "+String((millis()-_time) ,DEC));
+          Serial.println("Actual time: "+String(_dataManager.getSong(_selection).getLength(),DEC));
+        #endif
 
         changeState(_STATE_SONG_SELECTION);
       } else {
@@ -256,7 +257,6 @@ void loop()
         _dataManager.stopSong();
         changeState(_STATE_SONG_SELECTION);
       }
-
       break;
 
     default:
@@ -306,7 +306,7 @@ void initState(unsigned char newState)
 
     case _STATE_HOME:
       // init Home (draw menu for first time)
-        _selection = 0;
+      _selection = 0;
       _display.displayHomeScreen();
       break;
 
@@ -372,13 +372,7 @@ void bootUpRoutine()
     return;
   }
 
-
   // Load infos from SD card
-  _display.changeBootupInfo("Load languageFile");
-
-  //_dataManager.changeLanguage(_language);
-  //Serial.println("Yeah motherfucker: "+_dataManager.getTranslations("settings_title"));
-
   _display.changeBootupInfo("Parse Song Info");
 
   switch (_dataManager.parseSongInfos())
@@ -404,7 +398,6 @@ void sendDebugMessage(unsigned char messageCode, String message)
   Serial.println(message);
 }
 
-
 void error(unsigned char errorCode)
 {
   _errorCode = errorCode;
@@ -417,14 +410,14 @@ void encoderInterruptTurn()
   if (digitalRead(_encoderPinA) == HIGH)    // found a low-to-high on channel A
   {
     if (digitalRead(_encoderPinB) == LOW)   // check channel B to see which way
-      _encoderCounterTurns++;                // encoder is turning: CCW
+      _encoderCounterTurns++;               // encoder is turning: CCW
     else
-      _encoderCounterTurns--;                // encoder is turning:CW
+      _encoderCounterTurns--;               // encoder is turning:CW
   } else {                                  // found a high-to-low on channel A
     if (digitalRead(_encoderPinB) == LOW)   // check channel B to see which way
-      _encoderCounterTurns--;                // encoder is turning:CW
+      _encoderCounterTurns--;               // encoder is turning:CW
     else
-      _encoderCounterTurns++;                // encoder is turning:CCW
+      _encoderCounterTurns++;               // encoder is turning:CCW
   }
 }
 
