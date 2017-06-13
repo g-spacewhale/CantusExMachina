@@ -41,7 +41,6 @@ unsigned char _previousState = 0;           // holds the previous state of the s
 
 DataManagement _dataManager = DataManagement(_sdPinCS);
 Display _display = Display(_displayPinCS, _displayPinDC, _displayPinRST, _displayPinBACKLIGHT, _displayBrightness, _languageEnglish, &_dataManager);
-Language _translation = Language();
 
 // ------------------- Forward declarations --------------------
 void sendDebugMessage(unsigned char messageCode, String message);
