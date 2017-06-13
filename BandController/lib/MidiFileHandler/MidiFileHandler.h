@@ -11,7 +11,6 @@
 
 #include <Arduino.h>
 #include <SD.h>
-#include <MIDI.h>
 
 #define _MIDI_FILE_HANDLER_ERROR_HEADER_TITLE -1
 #define _MIDI_FILE_HANDLER_ERROR_HEADER_LENGTH -2
