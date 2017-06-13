@@ -17,7 +17,6 @@
 #include <ErrorCodes.h>     // Definitions of ErrorCodes
 #include <DataManagement.h> // custom class to manage data on sd card
 #include <MidiFileHandler.h>
-#include <Language.h>       //
 #include <Display.h>        // custom Display class to manage the tft Display
 
 // ------------------- Variable declarations -------------------
